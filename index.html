@@ -2,102 +2,229 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ชอบนะครับขอจีบนะครับ</title>
-    <!-- นำเข้าฟอนต์น่ารักๆ จาก Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;600&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>ชอบนะครับ ขอจีบนะครับ 💖</title>
+    <!-- นำเข้าฟอนต์สุดน่ารัก Mitr และ Prompt จาก Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500;600&family=Prompt:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
         body {
             margin: 0;
             padding: 0;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            background-color: #ffdde1; /* สีพื้นหลังชมพูพาสเทล */
-            font-family: 'Prompt', sans-serif;
-            overflow: hidden; /* ป้องกันหน้าจอเลื่อนเวลาปุ่มกระโดดไปขอบจอ */
-            touch-action: none; /* ป้องกันการเลื่อนจอหรือซูมบนมือถือ */
+            min-height: 100vh;
+            min-height: 100dvh; /* สำหรับมือถือ viewport แม่นยำ */
+            background: linear-gradient(135deg, #ff758c 0%, #ff7eb3 40%, #ffb199 100%);
+            background-size: 200% 200%;
+            animation: gradientBG 8s ease infinite;
+            font-family: 'Mitr', 'Prompt', sans-serif;
+            overflow: hidden;
+            touch-action: none;
+            position: relative;
         }
 
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* ฟองหัวใจลอยพื้นหลัง เพิ่มมิติ */
+        .hearts-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .heart-particle {
+            position: absolute;
+            bottom: -50px;
+            font-size: 24px;
+            opacity: 0.6;
+            animation: floatUp 7s linear infinite;
+            filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.7));
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(0) rotate(0deg) scale(0.8);
+                opacity: 0;
+            }
+            20% {
+                opacity: 0.7;
+            }
+            80% {
+                opacity: 0.7;
+            }
+            100% {
+                transform: translateY(-110vh) rotate(360deg) scale(1.2);
+                opacity: 0;
+            }
+        }
+
+        /* การ์ดแก้วสไตล์ Glassmorphism 3D */
         .card {
-            background: white;
-            padding: 40px 20px;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(255, 100, 150, 0.2);
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            padding: 35px 25px;
+            border-radius: 28px;
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 
+                0 20px 45px rgba(235, 64, 110, 0.35),
+                0 0 25px rgba(255, 255, 255, 0.6) inset;
             text-align: center;
-            width: 90%;
-            max-width: 350px;
+            width: 88%;
+            max-width: 360px;
             z-index: 10;
             display: flex;
             flex-direction: column;
             align-items: center;
+            animation: cardFloat 4s ease-in-out infinite alternate;
+            position: relative;
         }
 
-        /* ส่วนของสติกเกอร์ */
+        @keyframes cardFloat {
+            0% { transform: translateY(0px); }
+            100% { transform: translateY(-8px); }
+        }
+
+        /* กล่องสติกเกอร์ */
         .gif-container {
-            width: 150px;
-            margin-bottom: 20px;
-        }
-        .gif-container img, .tenor-gif-embed {
-            width: 100%;
-            border-radius: 10px;
-            pointer-events: none; /* ป้องกันการกดติด popup หรือเมนู */
+            width: 160px;
+            height: 160px;
+            margin-bottom: 18px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
         }
 
+        .gif-container img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 18px;
+            pointer-events: none;
+            filter: drop-shadow(0 10px 15px rgba(255, 90, 130, 0.3));
+            transition: all 0.3s ease;
+        }
+
+        /* หัวข้อฟอนต์ 3D Gradient Glow */
         h1 {
-            color: #ff4d6d;
-            font-size: 24px;
-            margin-bottom: 30px;
+            font-size: 26px;
+            font-weight: 600;
+            margin: 0 0 25px 0;
             line-height: 1.4;
+            background: linear-gradient(135deg, #e6005c, #ff3377, #ff6699);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 4px 15px rgba(255, 51, 102, 0.2);
+            letter-spacing: 0.5px;
+            filter: drop-shadow(0 2px 4px rgba(255, 105, 180, 0.3));
         }
 
-        /* จัดตำแหน่งปุ่ม */
+        /* จัดวางตำแหน่งปุ่ม */
         .buttons {
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 15px;
+            gap: 16px;
             width: 100%;
             position: relative;
-            min-height: 50px;
+            min-height: 60px;
         }
 
         button {
-            font-family: 'Prompt', sans-serif;
-            font-size: 16px;
-            font-weight: 600;
-            padding: 12px 24px;
+            font-family: 'Mitr', 'Prompt', sans-serif;
+            font-size: 17px;
+            font-weight: 500;
+            padding: 12px 28px;
             border: none;
-            border-radius: 30px;
+            border-radius: 50px;
             cursor: pointer;
-            transition: transform 0.2s ease, background-color 0.2s ease;
-            white-space: nowrap; /* ไม่ให้ข้อความในปุ่มขึ้นบรรทัดใหม่ */
+            transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.25s ease;
+            white-space: nowrap;
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
+        /* ปุ่ม ด้ายย สวยเด่น มีแสงกระพริบวิบวับ */
         #btn-yes {
-            background-color: #ff4d6d;
-            color: white;
-            box-shadow: 0 4px 15px rgba(255, 77, 109, 0.4);
+            background: linear-gradient(135deg, #ff2a6d 0%, #ff5e7e 100%);
+            color: #ffffff;
+            box-shadow: 
+                0 8px 25px rgba(255, 42, 109, 0.55),
+                0 0 15px rgba(255, 126, 179, 0.4);
+            border: 2px solid rgba(255, 255, 255, 0.4);
             z-index: 2;
+            animation: pulseGlow 2s infinite alternate;
         }
 
+        @keyframes pulseGlow {
+            0% {
+                box-shadow: 0 6px 20px rgba(255, 42, 109, 0.45);
+            }
+            100% {
+                box-shadow: 0 10px 30px rgba(255, 42, 109, 0.75), 0 0 20px rgba(255, 120, 180, 0.6);
+            }
+        }
+
+        #btn-yes:active {
+            transform: scale(0.95);
+        }
+
+        /* ปุ่ม ยังก่อน มินิมอล มีมิติ */
         #btn-no {
-            background-color: #f8f9fa;
+            background: #ffffff;
             color: #6c757d;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            border: 2px solid #f0f0f0;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
             position: relative; 
-            z-index: 100;
+            z-index: 9999; /* อยู่บนสุดตลอด */
+            max-width: 85vw; /* ป้องกันข้อความยาวดันทะลุจอ */
+            box-sizing: border-box;
+        }
+
+        #btn-no:active {
+            transform: scale(0.92);
+        }
+
+        /* เอฟเฟกต์ตอนกดตกลงสำเร็จ */
+        .celebrate-msg {
+            animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
         }
     </style>
 </head>
 <body>
 
+    <!-- หัวใจลอยฟรุ้งฟริ้งพื้นหลัง -->
+    <div class="hearts-bg" id="hearts-bg"></div>
+
     <div class="card">
         <div class="gif-container" id="gif-container">
-            <img id="sticker" src="https://media1.tenor.com/m/jcAP_LEeUOUAAAAd/love.gif" alt="Love Sticker" style="width: 100%; border-radius: 10px;">
+            <img id="sticker" src="https://media1.tenor.com/m/jcAP_LEeUOUAAAAd/love.gif" alt="Love Sticker">
         </div>
-        <h1 id="question">ชอบนะครับขอจีบนะครับ 🥺</h1>
+        <h1 id="question">ชอบนะครับ ขอจีบนะครับ 🥺</h1>
         
         <div class="buttons">
             <button id="btn-yes">ด้ายย ❤️</button>
@@ -106,32 +233,45 @@
     </div>
 
     <script>
+        // สร้างหัวใจลอยในพื้นหลัง
+        const heartsBg = document.getElementById('hearts-bg');
+        const heartIcons = ['💖', '💕', '🌸', '✨', '💗', '💘'];
+        for (let i = 0; i < 15; i++) {
+            const heart = document.createElement('div');
+            heart.className = 'heart-particle';
+            heart.innerText = heartIcons[Math.floor(Math.random() * heartIcons.length)];
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.animationDelay = (Math.random() * 6) + 's';
+            heart.style.animationDuration = (5 + Math.random() * 5) + 's';
+            heart.style.fontSize = (16 + Math.random() * 18) + 'px';
+            heartsBg.appendChild(heart);
+        }
+
         const btnNo = document.getElementById('btn-no');
         const btnYes = document.getElementById('btn-yes');
         const gifContainer = document.getElementById('gif-container');
         const sticker = document.getElementById('sticker');
         const question = document.getElementById('question');
 
-        let yesScale = 1; // ขนาดเริ่มต้นของปุ่ม "ได้"
+        let yesScale = 1;
         
-        // รายการข้อความที่จะสุ่มเปลี่ยนเมื่อกดปุ่ม "ยังก่อน"
         const noTexts = [
             "ยังไม่ได้หรอ 🥺", 
             "เปลี่ยนใจได้ไหม", 
             "เปลี่ยนใจเถอะ", 
-            "ขอร้องงง", 
+            "ขอร้องงง 🙏", 
             "เราจะร้องแล้วนะ 😭", 
             "ใจอ่อนได้แล้ว", 
             "ใจอ่อนเถอะน้าา", 
             "ได้มั้ยครับบบ", 
-            "ยอมแล้ววว", 
+            "ยอมแล้ววว 🥺", 
             "น้าาาาา", 
             "น้าๆๆๆๆๆ", 
-            "ขอร้องน้าา 🙏"
+            "ขอร้องน้าา ❤️"
         ];
         let textIndex = 0;
 
-        // รายการรูปภาพเศร้าๆ ที่จะสุ่มเปลี่ยน
+        // รูปเศร้าๆ ดึงดราม่า
         const sadGifs = [
             "https://media1.tenor.com/m/QjqrLB0Sw30AAAAC/sad-cat.gif",
             "https://media1.tenor.com/m/1W0yh-tTjNIAAAAC/do-bronx.gif",
@@ -147,54 +287,80 @@
 
         // ฟังก์ชันเมื่อกดปุ่ม "ยังก่อน"
         function moveButton() {
-            // 1. ทำให้ปุ่ม "ด้ายย" ขยายใหญ่ขึ้นทีละนิด
+            // 1. ขยายปุ่ม "ด้ายย"
             yesScale += 0.15;
             btnYes.style.transform = `scale(${yesScale})`;
 
-            // 2. เปลี่ยนข้อความปุ่ม "ยังก่อน" ตามลำดับเรื่อยๆ
+            // 2. เปลี่ยนข้อความปุ่ม "ยังก่อน"
             btnNo.innerText = noTexts[textIndex];
             textIndex = (textIndex + 1) % noTexts.length;
 
-            // 3. สุ่มเปลี่ยนรูปสติกเกอร์เป็นอันที่เศร้าๆ
+            // 3. สุ่มเปลี่ยนรูปสติกเกอร์
             const randomGif = sadGifs[Math.floor(Math.random() * sadGifs.length)];
             sticker.src = randomGif;
 
-            // 4. สุ่มตำแหน่งใหม่ให้ปุ่มหนีไปรอบๆ หน้าจอ
+            // 4. สุ่มตำแหน่งใหม่โดยไม่ให้ออกนอกจอมือถือเด็ดขาด!
+            btnNo.style.position = 'fixed';
+
+            // ดึงขนาดที่แท้จริงของปุ่มหลังจากเปลี่ยนข้อความ
             const btnWidth = btnNo.offsetWidth;
             const btnHeight = btnNo.offsetHeight;
-            
-            // หาขนาดความกว้าง/สูงของหน้าต่าง ลบด้วยขนาดปุ่มเพื่อไม่ให้ทะลุขอบจอ (เพิ่มระยะขอบปลอดภัยสำหรับมือถือ)
-            const safeMargin = 30;
-            const maxX = Math.max(0, document.documentElement.clientWidth - btnWidth - safeMargin);
-            const maxY = Math.max(0, document.documentElement.clientHeight - btnHeight - safeMargin);
 
-            const randomX = Math.max(safeMargin, Math.floor(Math.random() * maxX));
-            const randomY = Math.max(safeMargin, Math.floor(Math.random() * maxY));
+            // คำนวณขอบเขตหน้าจอมือถือที่ปลอดภัย (Viewport Safe Area)
+            const vw = Math.min(window.innerWidth, document.documentElement.clientWidth || window.innerWidth);
+            const vh = Math.min(window.innerHeight, document.documentElement.clientHeight || window.innerHeight);
 
-            // เปลี่ยน position เป็น fixed เพื่อให้ปุ่มหลุดออกจากกรอบและวิ่งทั่วจอ
-            btnNo.style.position = 'fixed';
-            btnNo.style.left = `${randomX}px`;
-            btnNo.style.top = `${randomY}px`;
+            const padding = 16; // ระยะห่างจากขอบจออย่างน้อย 16px
+
+            const minX = padding;
+            const maxX = Math.max(minX, vw - btnWidth - padding);
+
+            const minY = padding;
+            const maxY = Math.max(minY, vh - btnHeight - padding);
+
+            // คำนวณพิกัดแบบสุ่ม
+            let randomX = minX + Math.random() * (maxX - minX);
+            let randomY = minY + Math.random() * (maxY - minY);
+
+            // Double check ล็อคพิกัดไม่ให้หลุดออกนอกจอเด็ดขาด
+            randomX = Math.max(minX, Math.min(randomX, maxX));
+            randomY = Math.max(minY, Math.min(randomY, maxY));
+
+            btnNo.style.left = `${Math.floor(randomX)}px`;
+            btnNo.style.top = `${Math.floor(randomY)}px`;
+            btnNo.style.right = 'auto';
+            btnNo.style.bottom = 'auto';
         }
 
-        // เมื่อกดปุ่ม (ใช้ click ทำงานได้ดีที่สุดบนมือถือเวลาผู้ใช้แตะ)
         btnNo.addEventListener('click', (e) => {
             e.preventDefault();
             moveButton();
         });
 
-        // ฟังก์ชันเมื่อเขากดปุ่ม "ด้ายย" สำเร็จ
+        // เมื่อเขากด "ด้ายย" สำเร็จ 🎉
         btnYes.addEventListener('click', () => {
-            question.innerHTML = "เย้! น่ารักที่สุดเลย 🥰";
-            // ตรงนี้สำหรับเปลี่ยนรูปสติกเกอร์ตอนตอบตกลง
-            gifContainer.innerHTML = '<img src="https://media.tenor.com/rKUSiVu2bB0AAAAM/kiss-blow-kiss.gif" alt="Happy Sticker" style="width: 100%; border-radius: 10px;">';
+            question.innerHTML = "เย้! น่ารักที่สุดเลยยย 🥰";
+            question.className = "celebrate-msg";
+            gifContainer.innerHTML = '<img src="https://media.tenor.com/rKUSiVu2bB0AAAAM/kiss-blow-kiss.gif" alt="Happy Sticker" style="max-width: 100%; border-radius: 18px; filter: drop-shadow(0 10px 20px rgba(255, 65, 108, 0.4));">';
             
-            // ซ่อนปุ่มทั้งสองอันทิ้งไป
             btnNo.style.display = 'none';
             btnYes.style.display = 'none';
+
+            // ปล่อยหัวใจชุดใหญ่เฉลิมฉลอง
+            for (let i = 0; i < 30; i++) {
+                setTimeout(() => {
+                    const heart = document.createElement('div');
+                    heart.className = 'heart-particle';
+                    heart.innerText = heartIcons[Math.floor(Math.random() * heartIcons.length)];
+                    heart.style.left = (20 + Math.random() * 60) + 'vw';
+                    heart.style.bottom = '30vh';
+                    heart.style.fontSize = (24 + Math.random() * 26) + 'px';
+                    heart.style.animationDuration = (2.5 + Math.random() * 2) + 's';
+                    heartsBg.appendChild(heart);
+                }, i * 100);
+            }
         });
     </script>
 
 </body>
-</html>
 </html>
