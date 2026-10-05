@@ -22,7 +22,7 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            min-height: 100dvh; /* สำหรับมือถือ viewport แม่นยำ */
+            min-height: 100dvh;
             background: linear-gradient(135deg, #ff758c 0%, #ff7eb3 40%, #ffb199 100%);
             background-size: 200% 200%;
             animation: gradientBG 8s ease infinite;
@@ -38,7 +38,7 @@
             100% { background-position: 0% 50%; }
         }
 
-        /* ฟองหัวใจลอยพื้นหลัง เพิ่มมิติ */
+        /* ฟองหัวใจลอยพื้นหลัง */
         .hearts-bg {
             position: absolute;
             top: 0;
@@ -64,29 +64,27 @@
                 transform: translateY(0) rotate(0deg) scale(0.8);
                 opacity: 0;
             }
-            20% {
-                opacity: 0.7;
-            }
-            80% {
-                opacity: 0.7;
-            }
+            20% { opacity: 0.7; }
+            80% { opacity: 0.7; }
             100% {
                 transform: translateY(-110vh) rotate(360deg) scale(1.2);
                 opacity: 0;
             }
         }
 
-        /* การ์ดแก้วสไตล์ Glassmorphism 3D */
+        /* การ์ดแก้ว 3D พร้อมไฟนีออนสีชมพูเรืองแสงรอบกรอบตามขอ */
         .card {
-            background: rgba(255, 255, 255, 0.88);
+            background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             padding: 35px 25px;
             border-radius: 28px;
-            border: 2px solid rgba(255, 255, 255, 0.8);
+            border: 3.5px solid #ff4d79;
             box-shadow: 
-                0 20px 45px rgba(235, 64, 110, 0.35),
-                0 0 25px rgba(255, 255, 255, 0.6) inset;
+                0 0 25px #ff2a6d,
+                0 0 50px rgba(255, 42, 109, 0.75),
+                0 0 80px rgba(255, 105, 180, 0.5),
+                inset 0 0 15px rgba(255, 42, 109, 0.25);
             text-align: center;
             width: 88%;
             max-width: 360px;
@@ -94,13 +92,27 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            animation: cardFloat 4s ease-in-out infinite alternate;
+            animation: neonPulse 2.2s ease-in-out infinite alternate;
             position: relative;
         }
 
-        @keyframes cardFloat {
-            0% { transform: translateY(0px); }
-            100% { transform: translateY(-8px); }
+        @keyframes neonPulse {
+            0% {
+                border-color: #ff4d79;
+                box-shadow: 
+                    0 0 18px #ff2a6d,
+                    0 0 40px rgba(255, 42, 109, 0.6),
+                    0 0 65px rgba(255, 105, 180, 0.4),
+                    inset 0 0 10px rgba(255, 42, 109, 0.2);
+            }
+            100% {
+                border-color: #ff1a53;
+                box-shadow: 
+                    0 0 32px #ff2a6d,
+                    0 0 65px rgba(255, 42, 109, 0.9),
+                    0 0 100px rgba(255, 105, 180, 0.7),
+                    inset 0 0 20px rgba(255, 42, 109, 0.35);
+            }
         }
 
         /* กล่องสติกเกอร์ */
@@ -121,12 +133,11 @@
             border-radius: 18px;
             pointer-events: none;
             filter: drop-shadow(0 10px 15px rgba(255, 90, 130, 0.3));
-            transition: all 0.3s ease;
         }
 
         /* หัวข้อฟอนต์ 3D Gradient Glow */
         h1 {
-            font-size: 26px;
+            font-size: 24px;
             font-weight: 600;
             margin: 0 0 25px 0;
             line-height: 1.4;
@@ -157,7 +168,7 @@
             border: none;
             border-radius: 50px;
             cursor: pointer;
-            transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.25s ease;
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.2s ease;
             white-space: nowrap;
             outline: none;
             -webkit-tap-highlight-color: transparent;
@@ -168,43 +179,39 @@
             background: linear-gradient(135deg, #ff2a6d 0%, #ff5e7e 100%);
             color: #ffffff;
             box-shadow: 
-                0 8px 25px rgba(255, 42, 109, 0.55),
+                0 8px 25px rgba(255, 42, 109, 0.6),
                 0 0 15px rgba(255, 126, 179, 0.4);
             border: 2px solid rgba(255, 255, 255, 0.4);
-            z-index: 2;
+            z-index: 20;
             animation: pulseGlow 2s infinite alternate;
         }
 
         @keyframes pulseGlow {
-            0% {
-                box-shadow: 0 6px 20px rgba(255, 42, 109, 0.45);
-            }
-            100% {
-                box-shadow: 0 10px 30px rgba(255, 42, 109, 0.75), 0 0 20px rgba(255, 120, 180, 0.6);
-            }
+            0% { box-shadow: 0 6px 20px rgba(255, 42, 109, 0.5); }
+            100% { box-shadow: 0 10px 32px rgba(255, 42, 109, 0.85), 0 0 20px rgba(255, 120, 180, 0.7); }
         }
 
         #btn-yes:active {
             transform: scale(0.95);
         }
 
-        /* ปุ่ม ยังก่อน มินิมอล มีมิติ */
+        /* ปุ่ม ยังก่อน: มีมิติ ฉีกนอกกรอบและชิดกรอบขาว */
         #btn-no {
             background: #ffffff;
-            color: #6c757d;
-            border: 2px solid #f0f0f0;
-            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+            color: #ff3366;
+            border: 2px solid #ff4d79;
+            box-shadow: 0 8px 22px rgba(0, 0, 0, 0.22), 0 0 12px rgba(255, 77, 121, 0.35);
             position: relative; 
             z-index: 9999; /* อยู่บนสุดตลอด */
-            max-width: 85vw; /* ป้องกันข้อความยาวดันทะลุจอ */
+            max-width: 85vw;
             box-sizing: border-box;
+            transition: left 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.2), top 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.2), transform 0.2s ease;
         }
 
         #btn-no:active {
             transform: scale(0.92);
         }
 
-        /* เอฟเฟกต์ตอนกดตกลงสำเร็จ */
         .celebrate-msg {
             animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
@@ -220,7 +227,7 @@
     <!-- หัวใจลอยฟรุ้งฟริ้งพื้นหลัง -->
     <div class="hearts-bg" id="hearts-bg"></div>
 
-    <div class="card">
+    <div class="card" id="main-card">
         <div class="gif-container" id="gif-container">
             <img id="sticker" src="https://media1.tenor.com/m/jcAP_LEeUOUAAAAd/love.gif" alt="Love Sticker">
         </div>
@@ -247,6 +254,7 @@
             heartsBg.appendChild(heart);
         }
 
+        const card = document.getElementById('main-card');
         const btnNo = document.getElementById('btn-no');
         const btnYes = document.getElementById('btn-yes');
         const gifContainer = document.getElementById('gif-container');
@@ -285,7 +293,9 @@
             "https://media1.tenor.com/m/iEXbs40PJrYAAAAC/heart-broken-broken-heart.gif"
         ];
 
-        // ฟังก์ชันเมื่อกดปุ่ม "ยังก่อน"
+        let lastAngle = -1;
+
+        // คำนวณตำแหน่งรอบขอบการ์ดขาว (ฉีกนอกกรอบแต่ชิดขอบ และไม่ทับปุ่มตกลงเด็ดขาด)
         function moveButton() {
             // 1. ขยายปุ่ม "ด้ายย"
             yesScale += 0.15;
@@ -299,35 +309,80 @@
             const randomGif = sadGifs[Math.floor(Math.random() * sadGifs.length)];
             sticker.src = randomGif;
 
-            // 4. สุ่มตำแหน่งใหม่โดยไม่ให้ออกนอกจอมือถือเด็ดขาด!
+            // 4. สลับโหมดเป็น fixed
             btnNo.style.position = 'fixed';
 
-            // ดึงขนาดที่แท้จริงของปุ่มหลังจากเปลี่ยนข้อความ
+            const cardRect = card.getBoundingClientRect();
+            const yesRect = btnYes.getBoundingClientRect();
             const btnWidth = btnNo.offsetWidth;
             const btnHeight = btnNo.offsetHeight;
 
-            // คำนวณขอบเขตหน้าจอมือถือที่ปลอดภัย (Viewport Safe Area)
-            const vw = Math.min(window.innerWidth, document.documentElement.clientWidth || window.innerWidth);
-            const vh = Math.min(window.innerHeight, document.documentElement.clientHeight || window.innerHeight);
+            const cx = cardRect.left + cardRect.width / 2;
+            const cy = cardRect.top + cardRect.height / 2;
 
-            const padding = 16; // ระยะห่างจากขอบจออย่างน้อย 16px
+            // รัศมีรอบขอบการ์ด ให้ตัวปุ่มฉีกคาบเกี่ยวขอบขาวพอดี
+            const rx = (cardRect.width / 2) + (btnWidth * 0.28);
+            const ry = (cardRect.height / 2) + (btnHeight * 0.28);
 
-            const minX = padding;
-            const maxX = Math.max(minX, vw - btnWidth - padding);
+            // องศาที่เป็นไปได้รอบการ์ด (บน, ซ้ายบน, ขวาบน, ซ้าย, ขวา, ซ้ายล่าง, ขวาล่าง)
+            // เลี่ยงตรงกลางด้านล่างเป๊ะๆ เพื่อไม่ให้ทับปุ่ม ด้ายย
+            const possibleAngles = [
+                270, // ด้านบนกลาง
+                225, // ซ้ายบน
+                315, // ขวาบน
+                180, // ซ้ายกลาง
+                0,   // ขวากลาง
+                150, // ซ้ายล่าง
+                30,  // ขวาล่าง
+                245, // บนค่อนซ้าย
+                295  // บนค่อนขวา
+            ];
 
-            const minY = padding;
-            const maxY = Math.max(minY, vh - btnHeight - padding);
+            // กรองมุมที่อยู่ห่างจากมุมเดิม
+            let filteredAngles = possibleAngles.filter(a => a !== lastAngle);
 
-            // คำนวณพิกัดแบบสุ่ม
-            let randomX = minX + Math.random() * (maxX - minX);
-            let randomY = minY + Math.random() * (maxY - minY);
+            const vw = window.innerWidth;
+            const vh = window.innerHeight;
+            let bestX = null;
+            let bestY = null;
 
-            // Double check ล็อคพิกัดไม่ให้หลุดออกนอกจอเด็ดขาด
-            randomX = Math.max(minX, Math.min(randomX, maxX));
-            randomY = Math.max(minY, Math.min(randomY, maxY));
+            // สับเปลี่ยนมุมเพื่อสุ่ม
+            filteredAngles.sort(() => Math.random() - 0.5);
 
-            btnNo.style.left = `${Math.floor(randomX)}px`;
-            btnNo.style.top = `${Math.floor(randomY)}px`;
+            for (let deg of filteredAngles) {
+                const rad = (deg * Math.PI) / 180;
+                let targetX = cx + rx * Math.cos(rad) - (btnWidth / 2);
+                let targetY = cy + ry * Math.sin(rad) - (btnHeight / 2);
+
+                // ล็อคไม่ให้ออกนอกขอบจอมือถือ/คอม (ห่างขอบจออย่างน้อย 8px)
+                targetX = Math.max(8, Math.min(targetX, vw - btnWidth - 8));
+                targetY = Math.max(8, Math.min(targetY, vh - btnHeight - 8));
+
+                // เช็คว่าทับหรือใกล้ปุ่ม "ด้ายย" หรือไม่ (เว้นระยะห่างปลอดภัยอย่างน้อย 20px)
+                const safeDist = 20;
+                const isOverlappingYes = !(
+                    targetX + btnWidth + safeDist < yesRect.left ||
+                    targetX - safeDist > yesRect.right ||
+                    targetY + btnHeight + safeDist < yesRect.top ||
+                    targetY - safeDist > yesRect.bottom
+                );
+
+                if (!isOverlappingYes) {
+                    bestX = targetX;
+                    bestY = targetY;
+                    lastAngle = deg;
+                    break;
+                }
+            }
+
+            // ถ้าไม่มีมุมผ่าน (เผื่อไว้) ให้ขึ้นไปแปะด้านบนการ์ดชัวร์สุด
+            if (bestX === null) {
+                bestX = cx - (btnWidth / 2);
+                bestY = Math.max(8, cardRect.top - btnHeight + 10);
+            }
+
+            btnNo.style.left = `${Math.floor(bestX)}px`;
+            btnNo.style.top = `${Math.floor(bestY)}px`;
             btnNo.style.right = 'auto';
             btnNo.style.bottom = 'auto';
         }
