@@ -277,7 +277,6 @@
             "น้าๆๆๆๆๆ", 
             "ขอร้องน้าา ❤️"
         ];
-        let textIndex = 0;
 
         // รูปเศร้าๆ ดึงดราม่า
         const sadGifs = [
@@ -293,6 +292,25 @@
             "https://media1.tenor.com/m/iEXbs40PJrYAAAAC/heart-broken-broken-heart.gif"
         ];
 
+        // ระบบสุ่มแบบนับเทิร์น (สุ่มจนครบทุกอันในกองก่อน จะไม่ออกซ้ำจนกว่าจะวนรอบใหม่)
+        function createDeck(array) {
+            let pool = [];
+            return function getNext() {
+                if (pool.length === 0) {
+                    pool = [...array];
+                    // สับไพ่แบบ Fisher-Yates shuffle
+                    for (let i = pool.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [pool[i], pool[j]] = [pool[j], pool[i]];
+                    }
+                }
+                return pool.pop();
+            };
+        }
+
+        const getNextText = createDeck(noTexts);
+        const getNextGif = createDeck(sadGifs);
+
         let lastAngle = -1;
 
         // คำนวณตำแหน่งรอบขอบการ์ดขาว (ฉีกนอกกรอบแต่ชิดขอบ และไม่ทับปุ่มตกลงเด็ดขาด)
@@ -301,13 +319,9 @@
             yesScale += 0.15;
             btnYes.style.transform = `scale(${yesScale})`;
 
-            // 2. เปลี่ยนข้อความปุ่ม "ยังก่อน"
-            btnNo.innerText = noTexts[textIndex];
-            textIndex = (textIndex + 1) % noTexts.length;
-
-            // 3. สุ่มเปลี่ยนรูปสติกเกอร์
-            const randomGif = sadGifs[Math.floor(Math.random() * sadGifs.length)];
-            sticker.src = randomGif;
+            // 2. ดึงข้อความและรูปใหม่แบบไม่ซ้ำ (ต้องวนจนครบทุกคำและทุกรูปก่อนถึงจะซ้ำ)
+            btnNo.innerText = getNextText();
+            sticker.src = getNextGif();
 
             // 4. สลับโหมดเป็น fixed
             btnNo.style.position = 'fixed';
