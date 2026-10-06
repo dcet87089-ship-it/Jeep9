@@ -2,214 +2,450 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>มีอะไรจะบอก...</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>คืนนี้ฝันดีนะ... 🌙✨</title>
+    <!-- Google Fonts Mitr & Prompt -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Mitr:wght@300;400;500;600&family=Prompt:wght@300;400;600&display=swap" rel="stylesheet">
     
     <style>
-        body {
-            font-family: 'Prompt', sans-serif;
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
             margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Mitr', 'Prompt', sans-serif;
+            background: linear-gradient(180deg, #090d16 0%, #111827 40%, #1e1b4b 75%, #311042 100%);
+            min-height: 100vh;
+            min-height: 100dvh;
             overflow: hidden;
-            background: linear-gradient(135deg, #ffe4e6 0%, #fbcfe8 100%);
+            color: #f1f5f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            touch-action: none;
         }
 
-        /* เอฟเฟกต์หัวใจเต้น */
-        .heart-beat {
-            animation: heartbeat 1.5s infinite;
-        }
-
-        @keyframes heartbeat {
-            0% { transform: scale(1); filter: drop-shadow(0 0 10px rgba(244, 63, 94, 0.4)); }
-            14% { transform: scale(1.15); filter: drop-shadow(0 0 20px rgba(244, 63, 94, 0.7)); }
-            28% { transform: scale(1); filter: drop-shadow(0 0 10px rgba(244, 63, 94, 0.4)); }
-            42% { transform: scale(1.15); filter: drop-shadow(0 0 20px rgba(244, 63, 94, 0.7)); }
-            70% { transform: scale(1); filter: drop-shadow(0 0 10px rgba(244, 63, 94, 0.4)); }
-        }
-
-        /* สไตล์สำหรับ Particle (หัวใจที่ระเบิดออก) */
-        .particle {
+        /* ผืนฟ้าและดวงดาวระยิบระยับ */
+        #stars-canvas {
             position: absolute;
+            inset: 0;
             pointer-events: none;
-            z-index: 50;
-            transform-origin: center center;
-            animation: pop var(--duration) ease-out forwards;
-        }
-
-        @keyframes pop {
-            0% { 
-                transform: translate(-50%, -50%) scale(0.5); 
-                opacity: 1; 
-            }
-            80% {
-                opacity: 1;
-            }
-            100% { 
-                transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) scale(1.5) rotate(var(--rot)); 
-                opacity: 0; 
-            }
-        }
-
-        /* เอฟเฟกต์หัวใจลอยขึ้นด้านบน (background) */
-        .floating-heart {
-            position: absolute;
-            bottom: -10vh;
-            pointer-events: none;
-            animation: floatUp linear infinite;
-            opacity: 0.5;
             z-index: 1;
         }
 
-        @keyframes floatUp {
-            0% { transform: translateY(0) rotate(0deg); opacity: 0; }
-            10% { opacity: 0.6; }
-            90% { opacity: 0.6; }
-            100% { transform: translateY(-110vh) rotate(360deg); opacity: 0; }
+        /* ดาวตก (Shooting Star) */
+        .shooting-star {
+            position: absolute;
+            width: 120px;
+            height: 2px;
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.9), transparent);
+            transform: rotate(-35deg);
+            pointer-events: none;
+            z-index: 2;
+            opacity: 0;
+            animation: shoot 5s infinite ease-out;
+        }
+
+        @keyframes shoot {
+            0% { transform: translate(0, 0) rotate(-35deg); opacity: 0; }
+            10% { opacity: 1; }
+            30% { transform: translate(-300px, 300px) rotate(-35deg); opacity: 0; }
+            100% { opacity: 0; }
+        }
+
+        /* พระจันทร์เรืองแสงหน้าแรก */
+        #moon-view {
+            position: absolute;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            padding: 20px;
+        }
+
+        .moon-wrapper {
+            position: relative;
+            width: 140px;
+            height: 140px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 24px;
+        }
+
+        .moon-glow {
+            position: absolute;
+            inset: -20px;
+            background: radial-gradient(circle, rgba(253, 224, 71, 0.45) 0%, rgba(250, 204, 21, 0.15) 50%, transparent 70%);
+            border-radius: 50%;
+            animation: moonPulse 3s infinite alternate ease-in-out;
+        }
+
+        @keyframes moonPulse {
+            0% { transform: scale(0.95); opacity: 0.6; }
+            100% { transform: scale(1.15); opacity: 1; filter: drop-shadow(0 0 25px rgba(253, 224, 71, 0.6)); }
+        }
+
+        .moon-icon {
+            font-size: 90px;
+            filter: drop-shadow(0 0 15px rgba(254, 240, 138, 0.8));
+            animation: moonFloat 4s ease-in-out infinite alternate;
+        }
+
+        @keyframes moonFloat {
+            0% { transform: translateY(0px) rotate(-3deg); }
+            100% { transform: translateY(-10px) rotate(3deg); }
+        }
+
+        .intro-text {
+            font-size: 24px;
+            font-weight: 500;
+            color: #fef08a;
+            text-shadow: 0 0 15px rgba(253, 224, 71, 0.5);
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+        }
+
+        .hint-text {
+            font-size: 15px;
+            color: #cbd5e1;
+            opacity: 0.8;
+            animation: pulseHint 2s infinite ease-in-out;
+        }
+
+        @keyframes pulseHint {
+            0%, 100% { opacity: 0.5; transform: scale(0.98); }
+            50% { opacity: 1; transform: scale(1.02); }
+        }
+
+        /* การ์ดบอกฝันดีสไตล์ Frosted Night Glass */
+        #card-view {
+            position: absolute;
+            z-index: 20;
+            width: 90%;
+            max-width: 380px;
+            background: rgba(30, 27, 75, 0.65);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1.5px solid rgba(253, 224, 71, 0.25);
+            box-shadow: 
+                0 20px 50px rgba(0, 0, 0, 0.6),
+                0 0 35px rgba(168, 85, 247, 0.25),
+                inset 0 0 20px rgba(255, 255, 255, 0.05);
+            border-radius: 32px;
+            padding: 30px 24px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            opacity: 0;
+            transform: scale(0.8) translateY(30px);
+            pointer-events: none;
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        #card-view.active {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+            pointer-events: auto;
+        }
+
+        /* รูปสติกเกอร์น้องนอนหลับ */
+        .sleep-gif {
+            width: 140px;
+            height: 140px;
+            object-fit: contain;
+            border-radius: 20px;
+            margin-bottom: 16px;
+            filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.4));
+        }
+
+        .title-text {
+            font-size: 26px;
+            font-weight: 600;
+            color: #fef08a;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(250, 204, 21, 0.4);
+        }
+
+        .body-text {
+            font-size: 15px;
+            line-height: 1.7;
+            color: #e2e8f0;
+            font-weight: 300;
+            margin-bottom: 24px;
+        }
+
+        /* ปุ่มแอ็กชันก่อนนอน */
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
+        }
+
+        .btn-care {
+            width: 100%;
+            padding: 12px 20px;
+            font-family: 'Mitr', sans-serif;
+            font-size: 15px;
+            font-weight: 500;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 50px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.03));
+            color: #f8fafc;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .btn-care:hover, .btn-care:active {
+            background: linear-gradient(135deg, rgba(253, 224, 71, 0.25), rgba(168, 85, 247, 0.25));
+            border-color: rgba(253, 224, 71, 0.6);
+            transform: scale(0.98);
+            box-shadow: 0 0 20px rgba(250, 204, 21, 0.35);
+        }
+
+        /* ข้อความตอบรับเมื่อกดปุ่ม */
+        #reply-toast {
+            position: absolute;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%) translateY(50px);
+            background: rgba(15, 23, 42, 0.85);
+            border: 1px solid rgba(250, 204, 21, 0.4);
+            padding: 12px 24px;
+            border-radius: 50px;
+            color: #fef08a;
+            font-size: 14px;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 50;
+            white-space: nowrap;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+
+        #reply-toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* ละออง Zzz หรือดาวลอย */
+        .sparkle-particle {
+            position: absolute;
+            pointer-events: none;
+            z-index: 30;
+            animation: floatParticle 2s ease-out forwards;
+        }
+
+        @keyframes floatParticle {
+            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; }
+            100% { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1.4); opacity: 0; }
         }
     </style>
 </head>
-<body class="w-screen h-screen relative flex items-center justify-center">
+<body>
 
-    <div id="bg-hearts" class="absolute inset-0 overflow-hidden pointer-events-none"></div>
+    <!-- Canvas ดวงดาวระยิบระยับ -->
+    <canvas id="stars-canvas"></canvas>
 
-    <div id="initial-view" class="absolute z-20 flex flex-col items-center justify-center transition-all duration-700 ease-in-out transform scale-100 opacity-100 w-full px-4">
-        <div id="magic-heart" class="text-[8rem] md:text-[10rem] cursor-pointer hover:scale-110 transition-transform duration-300 heart-beat select-none" style="-webkit-tap-highlight-color: transparent;">
-            💝
+    <!-- ดาวตกพาดผ่านฟ้า -->
+    <div class="shooting-star" style="top: 15%; right: 10%;"></div>
+    <div class="shooting-star" style="top: 35%; right: 40%; animation-delay: 3.5s;"></div>
+
+    <!-- หน้าแรก: แตะพระจันทร์ -->
+    <div id="moon-view" onclick="openGoodNightCard()">
+        <div class="moon-wrapper">
+            <div class="moon-glow"></div>
+            <div class="moon-icon">🌙</div>
         </div>
-        <p class="mt-8 text-2xl md:text-4xl font-semibold text-rose-500 animate-pulse text-center drop-shadow-sm">
-            มีอะไรจะบอก... ลองกดดูสิ!
+        <h1 class="intro-text">ดึกแล้วนะ... มีอะไรจะบอก</h1>
+        <p class="hint-text">แตะที่พระจันทร์สิ ✨</p>
+    </div>
+
+    <!-- หน้าการ์ดบอกฝันดี -->
+    <div id="card-view">
+        <!-- สติกเกอร์น้องหมีนอนหลับน่ารักๆ -->
+        <img class="sleep-gif" src="https://media1.tenor.com/m/hqsF4Xxs7nUAAAAC/bubu-sad.gif" id="sleep-img" alt="Goodnight" />
+        <h2 class="title-text" id="card-title">คืนนี้ฝันดีนะคนเก่ง 😴💤</h2>
+        <p class="body-text" id="card-desc">
+            วันนี้เธอเก่งมากแล้วนะที่ผ่านวันนี้มาได้ ✨<br>
+            วางเรื่องเหนื่อยๆ ลงแล้วพักผ่อนเยอะๆ น้า<br>
+            ห่มผ้าให้อุ่นๆ แล้วเจอกันในความฝันนะคะ 🤍
         </p>
-    </div>
 
-    <div id="final-view" class="absolute z-30 flex flex-col items-center justify-center transition-all duration-1000 ease-in-out transform scale-50 opacity-0 pointer-events-none w-full px-4">
-        <div id="message-card" class="bg-white/70 backdrop-blur-lg p-8 md:p-12 rounded-[2rem] shadow-2xl text-center max-w-lg w-full border border-white/60 transition-all duration-500">
-            <h1 id="main-text" class="text-3xl md:text-5xl font-bold text-rose-600 mb-4 drop-shadow-sm leading-tight">
-                ไปดูหนังด้วยกันไหม? 🎬🍿
-            </h1>
-            <p id="sub-text" class="text-rose-400 text-lg md:text-xl mb-8 font-medium">
-                หรือจะไปหาอะไรอร่อยๆ กินด้วยกันดีน้าาา 🥰
-            </p>
-            
-            <div id="button-group" class="flex flex-col sm:flex-row gap-4 justify-center mt-4">
-                <button onclick="acceptInvitation()" class="px-8 py-3 bg-gradient-to-r from-rose-400 to-pink-500 text-white rounded-full font-semibold text-xl md:text-2xl hover:shadow-[0_0_20px_rgba(244,63,94,0.5)] hover:-translate-y-1 transition-all duration-300 active:scale-95 shadow-md">
-                    ไปสิ! 💖
-                </button>
-                <button onclick="acceptInvitation()" class="px-8 py-3 bg-gradient-to-r from-pink-400 to-red-400 text-white rounded-full font-semibold text-xl md:text-2xl hover:shadow-[0_0_20px_rgba(251,113,133,0.5)] hover:-translate-y-1 transition-all duration-300 active:scale-95 shadow-md">
-                    แน่นอน! ✨
-                </button>
-            </div>
+        <!-- ตัวเลือกส่งความอบอุ่นก่อนนอน -->
+        <div class="action-buttons" id="action-btns">
+            <button class="btn-care" onclick="sendCare('ห่มผ้าให้แล้วนะ หลับสบายๆ น้า 🛌✨', '🛌')">
+                <span>🛌</span> ห่มผ้าให้อุ่นๆ
+            </button>
+            <button class="btn-care" onclick="sendCare('กอดก่อนนอนแน่นๆ นะคะ 🫂🤍', '🫂')">
+                <span>🫂</span> กอดก่อนนอน
+            </button>
+            <button class="btn-care" onclick="sendCare('ฝันดีน้าา เจอกันในฝันนะ 😴💫', '💫')">
+                <span>✨</span> ส่งเข้านอน & ฝันดีนะ
+            </button>
         </div>
     </div>
+
+    <!-- กล่องแจ้งเตือนความอบอุ่น -->
+    <div id="reply-toast"></div>
 
     <script>
-        // DOM Elements
-        const heartBtn = document.getElementById('magic-heart');
-        const initialView = document.getElementById('initial-view');
-        const finalView = document.getElementById('final-view');
-        const bgHeartsContainer = document.getElementById('bg-hearts');
+        // 1. ระบบวาดดวงดาวระยิบระยับบนผืนฟ้า
+        const canvas = document.getElementById('stars-canvas');
+        const ctx = canvas.getContext('2d');
+        let stars = [];
 
-        // สร้างหัวใจลอยเป็นพื้นหลังเรื่อยๆ
-        function createBackgroundHearts() {
-            setInterval(() => {
-                const heart = document.createElement('div');
-                heart.classList.add('floating-heart');
-                heart.innerText = ['🤍', '🌸', '✨', '💕'][Math.floor(Math.random() * 4)];
-                heart.style.left = Math.random() * 100 + 'vw';
-                heart.style.fontSize = (Math.random() * 20 + 10) + 'px';
-                heart.style.animationDuration = (Math.random() * 5 + 5) + 's';
-                bgHeartsContainer.appendChild(heart);
-
-                setTimeout(() => {
-                    heart.remove();
-                }, 10000);
-            }, 600);
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            initStars();
         }
-        createBackgroundHearts();
 
-        // เมื่อกดหัวใจดวงใหญ่
-        heartBtn.addEventListener('click', (e) => {
-            const rect = heartBtn.getBoundingClientRect();
-            const centerX = rect.left + rect.width / 2;
-            const centerY = rect.top + rect.height / 2;
-
-            // 1. ซ่อนหน้าแรก
-            initialView.classList.remove('scale-100', 'opacity-100');
-            initialView.classList.add('scale-50', 'opacity-0', 'pointer-events-none');
-
-            // 2. ปล่อยเอฟเฟกต์หัวใจกระจาย
-            createExplosion(centerX, centerY, 60);
-
-            // 3. โชว์หน้าข้อความ
-            setTimeout(() => {
-                finalView.classList.remove('scale-50', 'opacity-0', 'pointer-events-none');
-                finalView.classList.add('scale-100', 'opacity-100');
-                finalView.style.pointerEvents = 'auto'; // ทำให้ปุ่มกดได้
-            }, 800);
-        });
-
-        // ฟังก์ชันสร้าง Particle ระเบิด
-        function createExplosion(x, y, amount) {
-            const emojis = ['❤️', '💖', '✨', '🌸', '🥰', '💕', '💘'];
-            
-            for (let i = 0; i < amount; i++) {
-                const particle = document.createElement('div');
-                particle.classList.add('particle');
-                particle.innerText = emojis[Math.floor(Math.random() * emojis.length)];
-                
-                // ตั้งจุดศูนย์กลางให้อยู่ตรงกลางหัวใจที่กด
-                particle.style.left = x + 'px';
-                particle.style.top = y + 'px';
-                
-                // คำนวณทิศทางกระจายแบบสุ่ม (วงกลม)
-                const angle = Math.random() * Math.PI * 2;
-                // ระยะทางกระจาย (100px ถึง 500px)
-                const distance = Math.random() * 400 + 100; 
-                
-                const tx = Math.cos(angle) * distance + 'px';
-                const ty = Math.sin(angle) * distance + 'px';
-                const rot = (Math.random() * 720 - 360) + 'deg';
-                const duration = (Math.random() * 1 + 0.8) + 's';
-                
-                particle.style.setProperty('--tx', tx);
-                particle.style.setProperty('--ty', ty);
-                particle.style.setProperty('--rot', rot);
-                particle.style.setProperty('--duration', duration);
-                
-                particle.style.fontSize = (Math.random() * 30 + 15) + 'px';
-
-                document.body.appendChild(particle);
-
-                // ลบ DOM ออกเมื่อแอนิเมชันจบ
-                setTimeout(() => {
-                    particle.remove();
-                }, 2000);
+        function initStars() {
+            stars = [];
+            const count = Math.floor((canvas.width * canvas.height) / 3500);
+            for (let i = 0; i < count; i++) {
+                stars.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    radius: Math.random() * 1.4 + 0.3,
+                    alpha: Math.random() * 0.8 + 0.2,
+                    speed: Math.random() * 0.02 + 0.005
+                });
             }
         }
 
-        // เมื่อเป้าหมายกดปุ่มตกลง (ปุ่มไหนก็เข้าฟังก์ชันนี้)
-        function acceptInvitation() {
-            // ปล่อยพลุหัวใจฉลอง
-            createExplosion(window.innerWidth / 2, window.innerHeight / 2, 80);
-            
-            // เปลี่ยนข้อความ
-            const mainText = document.getElementById('main-text');
-            const subText = document.getElementById('sub-text');
-            const buttonGroup = document.getElementById('button-group');
-            const card = document.getElementById('message-card');
+        function drawStars() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let star of stars) {
+                star.alpha += star.speed;
+                if (star.alpha > 1 || star.alpha < 0.2) {
+                    star.speed = -star.speed;
+                }
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 255, 255, ${Math.abs(star.alpha)})`;
+                ctx.fill();
+            }
+            requestAnimationFrame(drawStars);
+        }
 
-            mainText.innerHTML = "เย้! ดีใจจังเลย 🎉";
-            subText.innerHTML = "เดี๋ยวทักไปหานะ เตรียมตัวรอเลยยยย ❤️";
-            
-            // ซ่อนปุ่มแบบนุ่มนวล
-            buttonGroup.style.transition = "all 0.5s ease";
-            buttonGroup.style.opacity = "0";
-            buttonGroup.style.transform = "scale(0.8)";
-            
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+        drawStars();
+
+        // 2. ระบบสร้างเสียงกระดิ่งกล่อมนอนแบบนุ่มนวล (Web Audio API สังเคราะห์เสียง ไม่ต้องโหลดไฟล์)
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx;
+
+        function playLullabyChime(freq = 587.33) {
+            try {
+                if (!audioCtx) audioCtx = new AudioContext();
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                
+                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 1.6);
+                
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                
+                osc.start();
+                osc.stop(audioCtx.currentTime + 1.6);
+            } catch (e) {}
+        }
+
+        // 3. ฟังก์ชันเปิดการ์ดบอกฝันดีเมื่อแตะพระจันทร์
+        const moonView = document.getElementById('moon-view');
+        const cardView = document.getElementById('card-view');
+
+        function openGoodNightCard() {
+            // เล่นเสียงกระดิ่งดนตรีนุ่มๆ (D5, F#5, A5)
+            playLullabyChime(587.33);
+            setTimeout(() => playLullabyChime(739.99), 180);
+            setTimeout(() => playLullabyChime(880.00), 360);
+
+            // เอฟเฟกต์ประกายดาวกระจาย
+            createMagicSparkles(window.innerWidth / 2, window.innerHeight / 2 - 40, ['✨', '⭐', '🌟', '💤', '🌙']);
+
+            // ซ่อนพระจันทร์ แล้วโชว์การ์ด
+            moonView.style.opacity = '0';
+            moonView.style.transform = 'scale(0.5) translateY(-50px)';
+            moonView.style.pointerEvents = 'none';
+
             setTimeout(() => {
-                buttonGroup.style.display = "none";
-                card.classList.add('shadow-[0_0_50px_rgba(244,63,94,0.3)]'); // เพิ่มแสงเรืองรองให้การ์ด
-            }, 500);
+                cardView.classList.add('active');
+            }, 300);
+        }
+
+        // 4. ฟังก์ชันส่งความอบอุ่นเมื่อกดปุ่ม
+        const toast = document.getElementById('reply-toast');
+        let toastTimeout;
+
+        function sendCare(message, icon) {
+            playLullabyChime(659.25);
+            setTimeout(() => playLullabyChime(783.99), 150);
+
+            // กระจายละอองไอคอนที่กด
+            createMagicSparkles(window.innerWidth / 2, window.innerHeight * 0.7, [icon, '✨', '💤', '🤍', '🌙']);
+
+            // โชว์แจ้งเตือนด้านล่าง
+            toast.innerText = message;
+            toast.classList.add('show');
+            
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // 5. ละอองเอฟเฟกต์ฟรุ้งฟริ้ง
+        function createMagicSparkles(x, y, symbols) {
+            for (let i = 0; i < 18; i++) {
+                const el = document.createElement('div');
+                el.className = 'sparkle-particle';
+                el.innerText = symbols[Math.floor(Math.random() * symbols.length)];
+                
+                el.style.left = x + 'px';
+                el.style.top = y + 'px';
+                el.style.fontSize = (Math.random() * 16 + 14) + 'px';
+
+                const angle = Math.random() * Math.PI * 2;
+                const dist = Math.random() * 120 + 40;
+                const dx = Math.cos(angle) * dist + 'px';
+                const dy = Math.sin(angle) * dist + 'px';
+
+                el.style.setProperty('--dx', dx);
+                el.style.setProperty('--dy', dy);
+
+                document.body.appendChild(el);
+                setTimeout(() => el.remove(), 2000);
+            }
         }
     </script>
 </body>
