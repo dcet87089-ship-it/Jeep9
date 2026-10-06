@@ -2,434 +2,215 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>ชอบนะครับ ขอจีบนะครับ 💖</title>
-    <!-- นำเข้าฟอนต์สุดน่ารัก Mitr และ Prompt จาก Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500;600&family=Prompt:wght@400;600;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>มีอะไรจะบอก...</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
     <style>
-        * {
-            box-sizing: border-box;
-            user-select: none;
-            -webkit-user-select: none;
-        }
-
         body {
+            font-family: 'Prompt', sans-serif;
             margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            min-height: 100dvh;
-            background: linear-gradient(135deg, #ff758c 0%, #ff7eb3 40%, #ffb199 100%);
-            background-size: 200% 200%;
-            animation: gradientBG 8s ease infinite;
-            font-family: 'Mitr', 'Prompt', sans-serif;
             overflow: hidden;
-            touch-action: none;
-            position: relative;
+            background: linear-gradient(135deg, #ffe4e6 0%, #fbcfe8 100%);
         }
 
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+        /* เอฟเฟกต์หัวใจเต้น */
+        .heart-beat {
+            animation: heartbeat 1.5s infinite;
         }
 
-        /* ฟองหัวใจลอยพื้นหลัง */
-        .hearts-bg {
+        @keyframes heartbeat {
+            0% { transform: scale(1); filter: drop-shadow(0 0 10px rgba(244, 63, 94, 0.4)); }
+            14% { transform: scale(1.15); filter: drop-shadow(0 0 20px rgba(244, 63, 94, 0.7)); }
+            28% { transform: scale(1); filter: drop-shadow(0 0 10px rgba(244, 63, 94, 0.4)); }
+            42% { transform: scale(1.15); filter: drop-shadow(0 0 20px rgba(244, 63, 94, 0.7)); }
+            70% { transform: scale(1); filter: drop-shadow(0 0 10px rgba(244, 63, 94, 0.4)); }
+        }
+
+        /* สไตล์สำหรับ Particle (หัวใจที่ระเบิดออก) */
+        .particle {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
             pointer-events: none;
+            z-index: 50;
+            transform-origin: center center;
+            animation: pop var(--duration) ease-out forwards;
+        }
+
+        @keyframes pop {
+            0% { 
+                transform: translate(-50%, -50%) scale(0.5); 
+                opacity: 1; 
+            }
+            80% {
+                opacity: 1;
+            }
+            100% { 
+                transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) scale(1.5) rotate(var(--rot)); 
+                opacity: 0; 
+            }
+        }
+
+        /* เอฟเฟกต์หัวใจลอยขึ้นด้านบน (background) */
+        .floating-heart {
+            position: absolute;
+            bottom: -10vh;
+            pointer-events: none;
+            animation: floatUp linear infinite;
+            opacity: 0.5;
             z-index: 1;
         }
 
-        .heart-particle {
-            position: absolute;
-            bottom: -50px;
-            font-size: 24px;
-            opacity: 0.6;
-            animation: floatUp 7s linear infinite;
-            filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.7));
-        }
-
         @keyframes floatUp {
-            0% {
-                transform: translateY(0) rotate(0deg) scale(0.8);
-                opacity: 0;
-            }
-            20% { opacity: 0.7; }
-            80% { opacity: 0.7; }
-            100% {
-                transform: translateY(-110vh) rotate(360deg) scale(1.2);
-                opacity: 0;
-            }
-        }
-
-        /* การ์ดแก้ว 3D พร้อมไฟนีออนสีชมพูเรืองแสงรอบกรอบตามขอ */
-        .card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            padding: 35px 25px;
-            border-radius: 28px;
-            border: 3.5px solid #ff4d79;
-            box-shadow: 
-                0 0 25px #ff2a6d,
-                0 0 50px rgba(255, 42, 109, 0.75),
-                0 0 80px rgba(255, 105, 180, 0.5),
-                inset 0 0 15px rgba(255, 42, 109, 0.25);
-            text-align: center;
-            width: 88%;
-            max-width: 360px;
-            z-index: 10;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            animation: neonPulse 2.2s ease-in-out infinite alternate;
-            position: relative;
-        }
-
-        @keyframes neonPulse {
-            0% {
-                border-color: #ff4d79;
-                box-shadow: 
-                    0 0 18px #ff2a6d,
-                    0 0 40px rgba(255, 42, 109, 0.6),
-                    0 0 65px rgba(255, 105, 180, 0.4),
-                    inset 0 0 10px rgba(255, 42, 109, 0.2);
-            }
-            100% {
-                border-color: #ff1a53;
-                box-shadow: 
-                    0 0 32px #ff2a6d,
-                    0 0 65px rgba(255, 42, 109, 0.9),
-                    0 0 100px rgba(255, 105, 180, 0.7),
-                    inset 0 0 20px rgba(255, 42, 109, 0.35);
-            }
-        }
-
-        /* กล่องสติกเกอร์ */
-        .gif-container {
-            width: 160px;
-            height: 160px;
-            margin-bottom: 18px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-        }
-
-        .gif-container img {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-            border-radius: 18px;
-            pointer-events: none;
-            filter: drop-shadow(0 10px 15px rgba(255, 90, 130, 0.3));
-        }
-
-        /* หัวข้อฟอนต์ 3D Gradient Glow */
-        h1 {
-            font-size: 24px;
-            font-weight: 600;
-            margin: 0 0 25px 0;
-            line-height: 1.4;
-            background: linear-gradient(135deg, #e6005c, #ff3377, #ff6699);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 4px 15px rgba(255, 51, 102, 0.2);
-            letter-spacing: 0.5px;
-            filter: drop-shadow(0 2px 4px rgba(255, 105, 180, 0.3));
-        }
-
-        /* จัดวางตำแหน่งปุ่ม */
-        .buttons {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 16px;
-            width: 100%;
-            position: relative;
-            min-height: 60px;
-        }
-
-        button {
-            font-family: 'Mitr', 'Prompt', sans-serif;
-            font-size: 17px;
-            font-weight: 500;
-            padding: 12px 28px;
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.2s ease;
-            white-space: nowrap;
-            outline: none;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        /* ปุ่ม ด้ายย สวยเด่น มีแสงกระพริบวิบวับ */
-        #btn-yes {
-            background: linear-gradient(135deg, #ff2a6d 0%, #ff5e7e 100%);
-            color: #ffffff;
-            box-shadow: 
-                0 8px 25px rgba(255, 42, 109, 0.6),
-                0 0 15px rgba(255, 126, 179, 0.4);
-            border: 2px solid rgba(255, 255, 255, 0.4);
-            z-index: 20;
-            animation: pulseGlow 2s infinite alternate;
-        }
-
-        @keyframes pulseGlow {
-            0% { box-shadow: 0 6px 20px rgba(255, 42, 109, 0.5); }
-            100% { box-shadow: 0 10px 32px rgba(255, 42, 109, 0.85), 0 0 20px rgba(255, 120, 180, 0.7); }
-        }
-
-        #btn-yes:active {
-            transform: scale(0.95);
-        }
-
-        /* ปุ่ม ยังก่อน: มีมิติ ฉีกนอกกรอบและชิดกรอบขาว */
-        #btn-no {
-            background: #ffffff;
-            color: #ff3366;
-            border: 2px solid #ff4d79;
-            box-shadow: 0 8px 22px rgba(0, 0, 0, 0.22), 0 0 12px rgba(255, 77, 121, 0.35);
-            position: relative; 
-            z-index: 9999; /* อยู่บนสุดตลอด */
-            max-width: 85vw;
-            box-sizing: border-box;
-            transition: left 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.2), top 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.2), transform 0.2s ease;
-        }
-
-        #btn-no:active {
-            transform: scale(0.92);
-        }
-
-        .celebrate-msg {
-            animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-        }
-
-        @keyframes popIn {
-            0% { transform: scale(0.5); opacity: 0; }
-            100% { transform: scale(1); opacity: 1; }
+            0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.6; }
+            90% { opacity: 0.6; }
+            100% { transform: translateY(-110vh) rotate(360deg); opacity: 0; }
         }
     </style>
 </head>
-<body>
+<body class="w-screen h-screen relative flex items-center justify-center">
 
-    <!-- หัวใจลอยฟรุ้งฟริ้งพื้นหลัง -->
-    <div class="hearts-bg" id="hearts-bg"></div>
+    <div id="bg-hearts" class="absolute inset-0 overflow-hidden pointer-events-none"></div>
 
-    <div class="card" id="main-card">
-        <div class="gif-container" id="gif-container">
-            <img id="sticker" src="https://media1.tenor.com/m/jcAP_LEeUOUAAAAd/love.gif" alt="Love Sticker">
+    <div id="initial-view" class="absolute z-20 flex flex-col items-center justify-center transition-all duration-700 ease-in-out transform scale-100 opacity-100 w-full px-4">
+        <div id="magic-heart" class="text-[8rem] md:text-[10rem] cursor-pointer hover:scale-110 transition-transform duration-300 heart-beat select-none" style="-webkit-tap-highlight-color: transparent;">
+            💝
         </div>
-        <h1 id="question">ชอบนะครับ ขอจีบนะครับ 🥺</h1>
-        
-        <div class="buttons">
-            <button id="btn-yes">ด้ายย ❤️</button>
-            <button id="btn-no">ยังก่อน</button>
+        <p class="mt-8 text-2xl md:text-4xl font-semibold text-rose-500 animate-pulse text-center drop-shadow-sm">
+            มีอะไรจะบอก... ลองกดดูสิ!
+        </p>
+    </div>
+
+    <div id="final-view" class="absolute z-30 flex flex-col items-center justify-center transition-all duration-1000 ease-in-out transform scale-50 opacity-0 pointer-events-none w-full px-4">
+        <div id="message-card" class="bg-white/70 backdrop-blur-lg p-8 md:p-12 rounded-[2rem] shadow-2xl text-center max-w-lg w-full border border-white/60 transition-all duration-500">
+            <h1 id="main-text" class="text-3xl md:text-5xl font-bold text-rose-600 mb-4 drop-shadow-sm leading-tight">
+                ไปดูหนังด้วยกันไหม? 🎬🍿
+            </h1>
+            <p id="sub-text" class="text-rose-400 text-lg md:text-xl mb-8 font-medium">
+                หรือจะไปหาอะไรอร่อยๆ กินด้วยกันดีน้าาา 🥰
+            </p>
+            
+            <div id="button-group" class="flex flex-col sm:flex-row gap-4 justify-center mt-4">
+                <button onclick="acceptInvitation()" class="px-8 py-3 bg-gradient-to-r from-rose-400 to-pink-500 text-white rounded-full font-semibold text-xl md:text-2xl hover:shadow-[0_0_20px_rgba(244,63,94,0.5)] hover:-translate-y-1 transition-all duration-300 active:scale-95 shadow-md">
+                    ไปสิ! 💖
+                </button>
+                <button onclick="acceptInvitation()" class="px-8 py-3 bg-gradient-to-r from-pink-400 to-red-400 text-white rounded-full font-semibold text-xl md:text-2xl hover:shadow-[0_0_20px_rgba(251,113,133,0.5)] hover:-translate-y-1 transition-all duration-300 active:scale-95 shadow-md">
+                    แน่นอน! ✨
+                </button>
+            </div>
         </div>
     </div>
 
     <script>
-        // สร้างหัวใจลอยในพื้นหลัง
-        const heartsBg = document.getElementById('hearts-bg');
-        const heartIcons = ['💖', '💕', '🌸', '✨', '💗', '💘'];
-        for (let i = 0; i < 15; i++) {
-            const heart = document.createElement('div');
-            heart.className = 'heart-particle';
-            heart.innerText = heartIcons[Math.floor(Math.random() * heartIcons.length)];
-            heart.style.left = Math.random() * 100 + 'vw';
-            heart.style.animationDelay = (Math.random() * 6) + 's';
-            heart.style.animationDuration = (5 + Math.random() * 5) + 's';
-            heart.style.fontSize = (16 + Math.random() * 18) + 'px';
-            heartsBg.appendChild(heart);
-        }
+        // DOM Elements
+        const heartBtn = document.getElementById('magic-heart');
+        const initialView = document.getElementById('initial-view');
+        const finalView = document.getElementById('final-view');
+        const bgHeartsContainer = document.getElementById('bg-hearts');
 
-        const card = document.getElementById('main-card');
-        const btnNo = document.getElementById('btn-no');
-        const btnYes = document.getElementById('btn-yes');
-        const gifContainer = document.getElementById('gif-container');
-        const sticker = document.getElementById('sticker');
-        const question = document.getElementById('question');
+        // สร้างหัวใจลอยเป็นพื้นหลังเรื่อยๆ
+        function createBackgroundHearts() {
+            setInterval(() => {
+                const heart = document.createElement('div');
+                heart.classList.add('floating-heart');
+                heart.innerText = ['🤍', '🌸', '✨', '💕'][Math.floor(Math.random() * 4)];
+                heart.style.left = Math.random() * 100 + 'vw';
+                heart.style.fontSize = (Math.random() * 20 + 10) + 'px';
+                heart.style.animationDuration = (Math.random() * 5 + 5) + 's';
+                bgHeartsContainer.appendChild(heart);
 
-        let yesScale = 1;
-        
-        const noTexts = [
-            "ยังไม่ได้หรอ 🥺", 
-            "เปลี่ยนใจได้ไหม", 
-            "เปลี่ยนใจเถอะ", 
-            "ขอร้องงง 🙏", 
-            "เราจะร้องแล้วนะ 😭", 
-            "ใจอ่อนได้แล้ว", 
-            "ใจอ่อนเถอะน้าา", 
-            "ได้มั้ยครับบบ", 
-            "ยอมแล้ววว 🥺", 
-            "น้าาาาา", 
-            "น้าๆๆๆๆๆ", 
-            "ขอร้องน้าา ❤️"
-        ];
-
-        // รูปเศร้าๆ ดึงดราม่า
-        const sadGifs = [
-            "https://media1.tenor.com/m/QjqrLB0Sw30AAAAC/sad-cat.gif",
-            "https://media1.tenor.com/m/1W0yh-tTjNIAAAAC/do-bronx.gif",
-            "https://media1.tenor.com/m/hqsF4Xxs7nUAAAAC/bubu-sad.gif",
-            "https://media1.tenor.com/m/_CGSmj6qenYAAAAC/peach-and.gif",
-            "https://media1.tenor.com/m/A-CWA3DodfEAAAAC/bubu-bubu-sad.gif",
-            "https://media1.tenor.com/m/z0BGYS7UF0QAAAAC/tkthao219-bubududu.gif",
-            "https://media1.tenor.com/m/eHHT6gj6v60AAAAC/bubu-dudu.gif",
-            "https://media1.tenor.com/m/NbfYAAyKtmkAAAAC/bubu-dudu-sad.gif",
-            "https://media1.tenor.com/m/925LDfyVUGEAAAAC/cute-sad.gif",
-            "https://media1.tenor.com/m/iEXbs40PJrYAAAAC/heart-broken-broken-heart.gif"
-        ];
-
-        // ระบบสุ่มแบบนับเทิร์น (สุ่มจนครบทุกอันในกองก่อน จะไม่ออกซ้ำจนกว่าจะวนรอบใหม่)
-        function createDeck(array) {
-            let pool = [];
-            return function getNext() {
-                if (pool.length === 0) {
-                    pool = [...array];
-                    // สับไพ่แบบ Fisher-Yates shuffle
-                    for (let i = pool.length - 1; i > 0; i--) {
-                        const j = Math.floor(Math.random() * (i + 1));
-                        [pool[i], pool[j]] = [pool[j], pool[i]];
-                    }
-                }
-                return pool.pop();
-            };
-        }
-
-        const getNextText = createDeck(noTexts);
-        const getNextGif = createDeck(sadGifs);
-
-        let lastAngle = -1;
-
-        // คำนวณตำแหน่งรอบขอบการ์ดขาว (ฉีกนอกกรอบแต่ชิดขอบ และไม่ทับปุ่มตกลงเด็ดขาด)
-        function moveButton() {
-            // 1. ขยายปุ่ม "ด้ายย"
-            yesScale += 0.15;
-            btnYes.style.transform = `scale(${yesScale})`;
-
-            // 2. ดึงข้อความและรูปใหม่แบบไม่ซ้ำ (ต้องวนจนครบทุกคำและทุกรูปก่อนถึงจะซ้ำ)
-            btnNo.innerText = getNextText();
-            sticker.src = getNextGif();
-
-            // 4. สลับโหมดเป็น fixed
-            btnNo.style.position = 'fixed';
-
-            const cardRect = card.getBoundingClientRect();
-            const yesRect = btnYes.getBoundingClientRect();
-            const btnWidth = btnNo.offsetWidth;
-            const btnHeight = btnNo.offsetHeight;
-
-            const cx = cardRect.left + cardRect.width / 2;
-            const cy = cardRect.top + cardRect.height / 2;
-
-            // รัศมีรอบขอบการ์ด ให้ตัวปุ่มฉีกคาบเกี่ยวขอบขาวพอดี
-            const rx = (cardRect.width / 2) + (btnWidth * 0.28);
-            const ry = (cardRect.height / 2) + (btnHeight * 0.28);
-
-            // องศาที่เป็นไปได้รอบการ์ด (บน, ซ้ายบน, ขวาบน, ซ้าย, ขวา, ซ้ายล่าง, ขวาล่าง)
-            // เลี่ยงตรงกลางด้านล่างเป๊ะๆ เพื่อไม่ให้ทับปุ่ม ด้ายย
-            const possibleAngles = [
-                270, // ด้านบนกลาง
-                225, // ซ้ายบน
-                315, // ขวาบน
-                180, // ซ้ายกลาง
-                0,   // ขวากลาง
-                150, // ซ้ายล่าง
-                30,  // ขวาล่าง
-                245, // บนค่อนซ้าย
-                295  // บนค่อนขวา
-            ];
-
-            // กรองมุมที่อยู่ห่างจากมุมเดิม
-            let filteredAngles = possibleAngles.filter(a => a !== lastAngle);
-
-            const vw = window.innerWidth;
-            const vh = window.innerHeight;
-            let bestX = null;
-            let bestY = null;
-
-            // สับเปลี่ยนมุมเพื่อสุ่ม
-            filteredAngles.sort(() => Math.random() - 0.5);
-
-            for (let deg of filteredAngles) {
-                const rad = (deg * Math.PI) / 180;
-                let targetX = cx + rx * Math.cos(rad) - (btnWidth / 2);
-                let targetY = cy + ry * Math.sin(rad) - (btnHeight / 2);
-
-                // ล็อคไม่ให้ออกนอกขอบจอมือถือ/คอม (ห่างขอบจออย่างน้อย 8px)
-                targetX = Math.max(8, Math.min(targetX, vw - btnWidth - 8));
-                targetY = Math.max(8, Math.min(targetY, vh - btnHeight - 8));
-
-                // เช็คว่าทับหรือใกล้ปุ่ม "ด้ายย" หรือไม่ (เว้นระยะห่างปลอดภัยอย่างน้อย 20px)
-                const safeDist = 20;
-                const isOverlappingYes = !(
-                    targetX + btnWidth + safeDist < yesRect.left ||
-                    targetX - safeDist > yesRect.right ||
-                    targetY + btnHeight + safeDist < yesRect.top ||
-                    targetY - safeDist > yesRect.bottom
-                );
-
-                if (!isOverlappingYes) {
-                    bestX = targetX;
-                    bestY = targetY;
-                    lastAngle = deg;
-                    break;
-                }
-            }
-
-            // ถ้าไม่มีมุมผ่าน (เผื่อไว้) ให้ขึ้นไปแปะด้านบนการ์ดชัวร์สุด
-            if (bestX === null) {
-                bestX = cx - (btnWidth / 2);
-                bestY = Math.max(8, cardRect.top - btnHeight + 10);
-            }
-
-            btnNo.style.left = `${Math.floor(bestX)}px`;
-            btnNo.style.top = `${Math.floor(bestY)}px`;
-            btnNo.style.right = 'auto';
-            btnNo.style.bottom = 'auto';
-        }
-
-        btnNo.addEventListener('click', (e) => {
-            e.preventDefault();
-            moveButton();
-        });
-
-        // เมื่อเขากด "ด้ายย" สำเร็จ 🎉
-        btnYes.addEventListener('click', () => {
-            question.innerHTML = "เย้! น่ารักที่สุดเลยยย 🥰";
-            question.className = "celebrate-msg";
-            gifContainer.innerHTML = '<img src="https://media.tenor.com/rKUSiVu2bB0AAAAM/kiss-blow-kiss.gif" alt="Happy Sticker" style="max-width: 100%; border-radius: 18px; filter: drop-shadow(0 10px 20px rgba(255, 65, 108, 0.4));">';
-            
-            btnNo.style.display = 'none';
-            btnYes.style.display = 'none';
-
-            // ปล่อยหัวใจชุดใหญ่เฉลิมฉลอง
-            for (let i = 0; i < 30; i++) {
                 setTimeout(() => {
-                    const heart = document.createElement('div');
-                    heart.className = 'heart-particle';
-                    heart.innerText = heartIcons[Math.floor(Math.random() * heartIcons.length)];
-                    heart.style.left = (20 + Math.random() * 60) + 'vw';
-                    heart.style.bottom = '30vh';
-                    heart.style.fontSize = (24 + Math.random() * 26) + 'px';
-                    heart.style.animationDuration = (2.5 + Math.random() * 2) + 's';
-                    heartsBg.appendChild(heart);
-                }, i * 100);
-            }
-        });
-    </script>
+                    heart.remove();
+                }, 10000);
+            }, 600);
+        }
+        createBackgroundHearts();
 
+        // เมื่อกดหัวใจดวงใหญ่
+        heartBtn.addEventListener('click', (e) => {
+            const rect = heartBtn.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+
+            // 1. ซ่อนหน้าแรก
+            initialView.classList.remove('scale-100', 'opacity-100');
+            initialView.classList.add('scale-50', 'opacity-0', 'pointer-events-none');
+
+            // 2. ปล่อยเอฟเฟกต์หัวใจกระจาย
+            createExplosion(centerX, centerY, 60);
+
+            // 3. โชว์หน้าข้อความ
+            setTimeout(() => {
+                finalView.classList.remove('scale-50', 'opacity-0', 'pointer-events-none');
+                finalView.classList.add('scale-100', 'opacity-100');
+                finalView.style.pointerEvents = 'auto'; // ทำให้ปุ่มกดได้
+            }, 800);
+        });
+
+        // ฟังก์ชันสร้าง Particle ระเบิด
+        function createExplosion(x, y, amount) {
+            const emojis = ['❤️', '💖', '✨', '🌸', '🥰', '💕', '💘'];
+            
+            for (let i = 0; i < amount; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                particle.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+                
+                // ตั้งจุดศูนย์กลางให้อยู่ตรงกลางหัวใจที่กด
+                particle.style.left = x + 'px';
+                particle.style.top = y + 'px';
+                
+                // คำนวณทิศทางกระจายแบบสุ่ม (วงกลม)
+                const angle = Math.random() * Math.PI * 2;
+                // ระยะทางกระจาย (100px ถึง 500px)
+                const distance = Math.random() * 400 + 100; 
+                
+                const tx = Math.cos(angle) * distance + 'px';
+                const ty = Math.sin(angle) * distance + 'px';
+                const rot = (Math.random() * 720 - 360) + 'deg';
+                const duration = (Math.random() * 1 + 0.8) + 's';
+                
+                particle.style.setProperty('--tx', tx);
+                particle.style.setProperty('--ty', ty);
+                particle.style.setProperty('--rot', rot);
+                particle.style.setProperty('--duration', duration);
+                
+                particle.style.fontSize = (Math.random() * 30 + 15) + 'px';
+
+                document.body.appendChild(particle);
+
+                // ลบ DOM ออกเมื่อแอนิเมชันจบ
+                setTimeout(() => {
+                    particle.remove();
+                }, 2000);
+            }
+        }
+
+        // เมื่อเป้าหมายกดปุ่มตกลง (ปุ่มไหนก็เข้าฟังก์ชันนี้)
+        function acceptInvitation() {
+            // ปล่อยพลุหัวใจฉลอง
+            createExplosion(window.innerWidth / 2, window.innerHeight / 2, 80);
+            
+            // เปลี่ยนข้อความ
+            const mainText = document.getElementById('main-text');
+            const subText = document.getElementById('sub-text');
+            const buttonGroup = document.getElementById('button-group');
+            const card = document.getElementById('message-card');
+
+            mainText.innerHTML = "เย้! ดีใจจังเลย 🎉";
+            subText.innerHTML = "เดี๋ยวทักไปหานะ เตรียมตัวรอเลยยยย ❤️";
+            
+            // ซ่อนปุ่มแบบนุ่มนวล
+            buttonGroup.style.transition = "all 0.5s ease";
+            buttonGroup.style.opacity = "0";
+            buttonGroup.style.transform = "scale(0.8)";
+            
+            setTimeout(() => {
+                buttonGroup.style.display = "none";
+                card.classList.add('shadow-[0_0_50px_rgba(244,63,94,0.3)]'); // เพิ่มแสงเรืองรองให้การ์ด
+            }, 500);
+        }
+    </script>
 </body>
 </html>
