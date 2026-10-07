@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Tarot of You ✨ ไพ่ทำนายพรพิเศษสำหรับเธอ</title>
-    <!-- Google Fonts Mitr, Cinzel, Prompt -->
+    <title>เช็คระดับใจวันนี้หน่อย 🧃💖</title>
+    <!-- Google Fonts Mitr & Prompt -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800;900&family=Mitr:wght@300;400;500;600&family=Prompt:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500;600;700&family=Prompt:wght@400;600;700&display=swap" rel="stylesheet">
     
     <style>
         * {
@@ -20,766 +20,634 @@
 
         body {
             font-family: 'Mitr', 'Prompt', sans-serif;
-            background: #0a0612;
+            background: linear-gradient(135deg, #ffe4e6 0%, #ffcfd2 45%, #fde2e4 100%);
             min-height: 100vh;
             min-height: 100dvh;
             overflow-x: hidden;
-            color: #f8fafc;
+            color: #475569;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            position: relative;
-            padding: 20px 14px 40px;
-        }
-
-        /* ผืนฟ้าเวทมนตร์และละอองดาว */
-        .mystic-bg {
-            position: fixed;
-            inset: 0;
-            background: 
-                radial-gradient(circle at 50% 10%, rgba(168, 85, 247, 0.25) 0%, transparent 50%),
-                radial-gradient(circle at 10% 80%, rgba(236, 72, 153, 0.2) 0%, transparent 45%),
-                radial-gradient(circle at 90% 70%, rgba(234, 179, 8, 0.15) 0%, transparent 50%),
-                #090514;
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        #stars-canvas {
-            position: fixed;
-            inset: 0;
-            pointer-events: none;
-            z-index: 1;
-        }
-
-        /* ส่วนหัวเรื่องสไตล์ไพ่ทาโรต์หรูหรา */
-        header {
-            position: relative;
-            z-index: 10;
-            text-align: center;
-            margin-bottom: 24px;
-            max-width: 500px;
-        }
-
-        .tarot-badge {
-            font-family: 'Cinzel', serif;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 13px;
-            color: #fde047;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            padding: 6px 18px;
-            background: rgba(234, 179, 8, 0.1);
-            border: 1px solid rgba(234, 179, 8, 0.4);
-            border-radius: 40px;
-            box-shadow: 0 0 20px rgba(234, 179, 8, 0.25);
-            margin-bottom: 12px;
-        }
-
-        h1 {
-            font-size: 26px;
-            font-weight: 600;
-            background: linear-gradient(135deg, #fef08a 0%, #f472b6 50%, #c084fc 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 8px;
-            text-shadow: 0 0 25px rgba(244, 114, 182, 0.4);
-        }
-
-        .subtitle {
-            font-size: 14px;
-            color: #cbd5e1;
-            font-weight: 300;
-            line-height: 1.6;
-        }
-
-        .progress-pill {
-            display: inline-block;
-            margin-top: 10px;
-            font-size: 13px;
-            color: #f472b6;
-            background: rgba(244, 114, 182, 0.1);
-            border: 1px solid rgba(244, 114, 182, 0.3);
-            padding: 4px 14px;
-            border-radius: 20px;
-            font-family: 'Cinzel', 'Mitr', sans-serif;
-            letter-spacing: 1px;
-        }
-
-        /* รายการไพ่ 5 ใบ (Card Deck Area) */
-        .cards-container {
-            position: relative;
-            z-index: 10;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 16px;
-            max-width: 900px;
-            width: 100%;
-            perspective: 1200px;
-            margin-bottom: 30px;
-        }
-
-        /* ตัวการ์ดแบบ 3D Flip */
-        .tarot-card {
-            width: 155px;
-            height: 250px;
-            position: relative;
-            transform-style: preserve-3d;
-            transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease;
-            cursor: pointer;
-            border-radius: 18px;
-        }
-
-        @media (min-width: 640px) {
-            .tarot-card {
-                width: 165px;
-                height: 265px;
-            }
-        }
-
-        .tarot-card:hover {
-            transform: translateY(-8px) scale(1.03);
-        }
-
-        .tarot-card.flipped {
-            transform: rotateY(180deg);
-        }
-
-        .card-face {
-            position: absolute;
-            inset: 0;
-            border-radius: 18px;
-            backface-visibility: hidden;
-            -webkit-backface-visibility: hidden;
-            overflow: hidden;
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
-        }
-
-        /* หลังไพ่ (Back of Card) หรูหรา ลายทองคลาสสิก */
-        .card-back {
-            background: linear-gradient(135deg, #180d2e 0%, #0d071a 100%);
-            border: 2px solid #eab308;
-            box-shadow: 
-                0 0 15px rgba(234, 179, 8, 0.3),
-                inset 0 0 15px rgba(234, 179, 8, 0.2);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 12px;
-            text-align: center;
-        }
-
-        .card-back-frame {
-            border: 1px solid rgba(234, 179, 8, 0.5);
-            border-radius: 12px;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background: radial-gradient(circle, rgba(168, 85, 247, 0.15) 0%, transparent 70%);
-            position: relative;
-        }
-
-        .card-back-symbol {
-            font-size: 38px;
-            filter: drop-shadow(0 0 10px rgba(234, 179, 8, 0.7));
-            margin-bottom: 8px;
-            animation: pulseSymbol 2.5s infinite alternate ease-in-out;
-        }
-
-        @keyframes pulseSymbol {
-            0% { transform: scale(0.95); opacity: 0.8; }
-            100% { transform: scale(1.08); opacity: 1; }
-        }
-
-        .card-number {
-            font-family: 'Cinzel', serif;
-            font-size: 11px;
-            color: #fef08a;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-        }
-
-        .tap-prompt {
-            font-size: 11px;
-            color: #f472b6;
-            margin-top: 6px;
-            animation: pulseText 1.8s infinite;
-        }
-
-        @keyframes pulseText {
-            0%, 100% { opacity: 0.5; }
-            50% { opacity: 1; }
-        }
-
-        /* หน้าไพ่ (Front of Card) รูปถ่าย + กรอบทอง */
-        .card-front {
-            transform: rotateY(180deg);
-            background: #110c22;
-            border: 2.5px solid #f472b6;
-            box-shadow: 0 0 25px rgba(244, 114, 182, 0.5);
-            display: flex;
-            flex-direction: column;
-            padding: 6px;
-        }
-
-        .card-photo-wrapper {
-            position: relative;
-            width: 100%;
-            height: 180px;
-            border-radius: 12px;
-            overflow: hidden;
-            border: 1px solid rgba(254, 240, 138, 0.4);
-        }
-
-        .card-photo {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            object-position: center top;
-            transition: transform 0.4s ease;
-        }
-
-        .tarot-card:hover .card-photo {
-            transform: scale(1.05);
-        }
-
-        .card-front-info {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 6px 4px 2px;
-            text-align: center;
-        }
-
-        .card-front-title {
-            font-size: 12px;
-            font-weight: 600;
-            color: #fef08a;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 140px;
-            text-shadow: 0 0 10px rgba(254, 240, 138, 0.4);
-        }
-
-        .card-front-tap {
-            font-size: 10px;
-            color: #f472b6;
-            margin-top: 2px;
-        }
-
-        /* Modal โชว์รายละเอียดไพ่แบบขยายใหญ่ (Card Detail Modal) */
-        .detail-modal {
-            position: fixed;
-            inset: 0;
-            background: rgba(5, 3, 10, 0.88);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            z-index: 100;
-            display: flex;
             align-items: center;
             justify-content: center;
             padding: 16px;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.35s ease;
-        }
-
-        .detail-modal.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        .modal-card-box {
-            background: linear-gradient(145deg, #180f2e 0%, #0c0818 100%);
-            border: 2px solid #eab308;
-            box-shadow: 
-                0 0 45px rgba(234, 179, 8, 0.35),
-                0 0 80px rgba(244, 114, 182, 0.25);
-            border-radius: 28px;
-            max-width: 380px;
-            width: 100%;
-            padding: 22px 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            transform: scale(0.85) translateY(20px);
-            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             position: relative;
         }
 
-        .detail-modal.active .modal-card-box {
-            transform: scale(1) translateY(0);
+        /* ฟองหัวใจลอยพื้นหลัง */
+        .bg-bubbles {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
         }
 
-        .modal-photo {
-            width: 150px;
-            height: 190px;
-            object-fit: cover;
-            border-radius: 16px;
-            border: 2px solid #fef08a;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6);
-            margin-bottom: 14px;
+        .bubble {
+            position: absolute;
+            bottom: -40px;
+            font-size: 20px;
+            opacity: 0.45;
+            animation: rise 6s infinite ease-in;
         }
 
-        .modal-category {
-            font-size: 12px;
-            color: #f472b6;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            margin-bottom: 4px;
+        @keyframes rise {
+            0% { transform: translateY(0) scale(0.8); opacity: 0; }
+            20% { opacity: 0.6; }
+            80% { opacity: 0.6; }
+            100% { transform: translateY(-110vh) scale(1.3); opacity: 0; }
         }
 
-        .modal-title {
+        /* การ์ดหลัก */
+        .card {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 2px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 
+                0 20px 45px rgba(244, 63, 94, 0.22),
+                0 0 25px rgba(255, 255, 255, 0.8) inset;
+            border-radius: 32px;
+            padding: 28px 24px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            position: relative;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: transform 0.4s ease;
+        }
+
+        h1 {
             font-size: 22px;
             font-weight: 600;
-            color: #fef08a;
-            margin-bottom: 12px;
-            text-shadow: 0 0 15px rgba(254, 240, 138, 0.5);
+            color: #e11d48;
+            margin-bottom: 6px;
+            text-shadow: 0 2px 8px rgba(225, 29, 72, 0.15);
         }
 
-        .modal-desc {
+        .sub-text {
             font-size: 14px;
-            color: #e2e8f0;
-            line-height: 1.7;
-            font-weight: 300;
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 16px;
-            padding: 14px;
-            margin-bottom: 14px;
-            text-align: left;
+            color: #64748b;
+            margin-bottom: 20px;
+            line-height: 1.5;
         }
 
-        .modal-stat {
-            font-size: 13px;
-            color: #fcd34d;
-            font-weight: 500;
+        /* บริเวณแก้วน้ำ & เหยือกน้ำ */
+        .stage {
+            position: relative;
+            width: 220px;
+            height: 250px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
             margin-bottom: 18px;
         }
 
-        .close-btn {
-            background: linear-gradient(135deg, #eab308 0%, #ec4899 100%);
-            color: #fff;
-            border: none;
-            padding: 10px 28px;
-            border-radius: 30px;
-            font-family: 'Mitr', sans-serif;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            box-shadow: 0 4px 20px rgba(234, 179, 8, 0.4);
-            transition: all 0.2s ease;
+        /* เหยือกน้ำสีแดงจอมซุ่มซ่าม (Pitcher) */
+        .pitcher {
+            position: absolute;
+            top: -20px;
+            right: 0px;
+            font-size: 64px;
+            opacity: 0;
+            transform-origin: bottom left;
+            transform: scale(0.5) rotate(0deg);
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 30;
+            pointer-events: none;
+            filter: drop-shadow(0 10px 15px rgba(225, 29, 72, 0.35));
         }
 
-        .close-btn:active {
-            transform: scale(0.95);
+        .pitcher.pouring {
+            opacity: 1;
+            transform: scale(1) rotate(-65deg) translate(-20px, 10px);
         }
 
-        /* Grand Celebration Modal (เปิดครบทั้ง 5 ใบ) */
-        .celebration-modal {
-            position: fixed;
-            inset: 0;
-            background: rgba(8, 4, 16, 0.94);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
-            z-index: 200;
+        /* สายน้ำสีแดงที่กำลังเทลงมา */
+        .water-stream {
+            position: absolute;
+            top: 50px;
+            left: 95px;
+            width: 14px;
+            height: 0px;
+            background: linear-gradient(180deg, #ff1744 0%, #e11d48 100%);
+            border-radius: 10px;
+            z-index: 25;
+            opacity: 0;
+            transition: height 0.3s ease, opacity 0.2s ease;
+            box-shadow: 0 0 12px rgba(255, 23, 68, 0.8);
+        }
+
+        .water-stream.active {
+            opacity: 1;
+            height: 150px;
+            animation: flowStream 0.2s infinite linear alternate;
+        }
+
+        @keyframes flowStream {
+            0% { transform: scaleX(0.85); }
+            100% { transform: scaleX(1.15); }
+        }
+
+        /* ตัวแก้วน้ำดีไซน์หรูหรา 3D Glass */
+        .glass-cup {
+            position: relative;
+            width: 130px;
+            height: 180px;
+            background: rgba(255, 255, 255, 0.45);
+            border: 4px solid rgba(255, 255, 255, 0.9);
+            border-top: none;
+            border-radius: 0 0 35px 35px;
+            box-shadow: 
+                0 15px 30px rgba(225, 29, 72, 0.2),
+                inset 0 0 20px rgba(255, 255, 255, 0.8),
+                inset -5px 0 10px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            display: flex;
+            align-items: flex-end;
+            z-index: 20;
+        }
+
+        /* ขอบปากแก้ว */
+        .glass-rim {
+            position: absolute;
+            top: 66px;
+            width: 130px;
+            height: 14px;
+            border: 4px solid rgba(255, 255, 255, 0.95);
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            z-index: 22;
+            pointer-events: none;
+        }
+
+        /* สติกเกอร์หัวใจกลางแก้ว */
+        .heart-badge {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 32px;
+            z-index: 25;
+            pointer-events: none;
+            filter: drop-shadow(0 2px 6px rgba(225, 29, 72, 0.4));
+            animation: heartPulse 1.8s infinite ease-in-out;
+        }
+
+        @keyframes heartPulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.15); }
+        }
+
+        /* น้ำสีแดงในแก้ว */
+        .red-liquid {
+            width: 100%;
+            height: 25%;
+            background: linear-gradient(180deg, #ff2a5f 0%, #e11d48 50%, #9f1239 100%);
+            position: relative;
+            transition: height 1s cubic-bezier(0.34, 1.3, 0.64, 1);
+            box-shadow: 0 0 20px rgba(225, 29, 72, 0.6) inset;
+        }
+
+        /* ผิวน้ำกระเพื่อม Wave Effect */
+        .liquid-wave {
+            position: absolute;
+            top: -10px;
+            left: 0;
+            width: 200%;
+            height: 20px;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120' preserveAspectRatio='none'%3E%3Cpath d='M0,0 C150,90 350,-40 500,45 C650,130 900,-20 1200,30 L1200,120 L0,120 Z' fill='%23ff2a5f'%3E%3C/path%3E%3C/svg%3E");
+            background-size: 130px 20px;
+            animation: waveMove 2s infinite linear;
+        }
+
+        @keyframes waveMove {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-130px); }
+        }
+
+        /* ตัวเลขแสดง % ปัจจุบัน */
+        .percent-display {
+            font-size: 22px;
+            font-weight: 700;
+            color: #e11d48;
+            margin-bottom: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.5s ease;
+            gap: 6px;
         }
 
-        .celebration-modal.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        .celebration-box {
-            background: linear-gradient(145deg, #241147 0%, #120924 100%);
-            border: 2px solid #f472b6;
-            box-shadow: 
-                0 0 60px rgba(244, 114, 182, 0.45),
-                0 0 100px rgba(234, 179, 8, 0.3);
-            border-radius: 32px;
-            max-width: 400px;
+        /* สไลเดอร์เลือกเปอร์เซ็นต์ */
+        .slider-section {
             width: 100%;
-            padding: 30px 24px;
-            text-align: center;
-            transform: scale(0.85);
-            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            margin-bottom: 20px;
+            transition: opacity 0.3s ease;
         }
 
-        .celebration-modal.active .celebration-box {
-            transform: scale(1);
+        .custom-slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 12px;
+            border-radius: 10px;
+            background: #fed7aa;
+            background: linear-gradient(90deg, #fecdd3, #f43f5e);
+            outline: none;
+            cursor: pointer;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
-        .celebration-icon {
-            font-size: 60px;
-            margin-bottom: 12px;
-            animation: bounceIcon 2s infinite ease-in-out;
+        .custom-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #ffffff;
+            border: 3px solid #e11d48;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(225, 29, 72, 0.4);
+            transition: transform 0.15s ease;
         }
 
-        @keyframes bounceIcon {
-            0%, 100% { transform: translateY(0) scale(1); }
-            50% { transform: translateY(-10px) scale(1.1); }
+        .custom-slider::-webkit-slider-thumb:hover, .custom-slider::-webkit-slider-thumb:active {
+            transform: scale(1.2);
         }
 
-        .celebration-title {
-            font-size: 24px;
+        /* คำบรรยายตาม % ที่เลือก */
+        .slider-caption {
+            font-size: 13px;
+            color: #e11d48;
+            margin-top: 8px;
+            font-weight: 500;
+            min-height: 20px;
+        }
+
+        /* ปุ่มกดยืนยัน */
+        .confirm-btn {
+            background: linear-gradient(135deg, #e11d48 0%, #f43f5e 50%, #fb7185 100%);
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            font-family: 'Mitr', sans-serif;
+            font-size: 16px;
             font-weight: 600;
-            color: #fef08a;
-            margin-bottom: 12px;
-            text-shadow: 0 0 20px rgba(254, 240, 138, 0.5);
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(225, 29, 72, 0.45);
+            transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
         }
 
-        .celebration-msg {
-            font-size: 15px;
-            color: #e2e8f0;
-            line-height: 1.8;
-            font-weight: 300;
-            margin-bottom: 24px;
+        .confirm-btn:hover, .confirm-btn:active {
+            transform: scale(0.97);
+            box-shadow: 0 10px 30px rgba(225, 29, 72, 0.65);
         }
 
-        /* ละอองเวทมนตร์ลอยเมื่อเปิดไพ่ */
-        .magic-particle {
-            position: fixed;
+        /* แถบแจ้งเตือนฮาๆ ตอนน้ำหก */
+        .alert-banner {
+            position: absolute;
+            top: 14px;
+            background: #fff1f2;
+            border: 2px dashed #e11d48;
+            padding: 8px 18px;
+            border-radius: 30px;
+            color: #e11d48;
+            font-size: 13px;
+            font-weight: 600;
+            box-shadow: 0 6px 20px rgba(225, 29, 72, 0.25);
+            opacity: 0;
+            transform: translateY(-20px) scale(0.9);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 40;
             pointer-events: none;
-            z-index: 999;
-            animation: magicFloat 1.8s ease-out forwards;
         }
 
-        @keyframes magicFloat {
-            0% { transform: translate(-50%, -50%) scale(0.4); opacity: 1; }
-            100% { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1.5) rotate(var(--rot)); opacity: 0; }
+        .alert-banner.show {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        /* หน้าผลลัพธ์ดีใจเมื่อน้ำหกล้นแก้ว (Celebration Section) */
+        .result-section {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            width: 100%;
+            animation: popUp 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        @keyframes popUp {
+            0% { opacity: 0; transform: scale(0.8); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        .happy-sticker {
+            width: 140px;
+            height: 140px;
+            object-fit: contain;
+            border-radius: 20px;
+            margin-bottom: 14px;
+            filter: drop-shadow(0 8px 20px rgba(225, 29, 72, 0.3));
+        }
+
+        .cheer-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #e11d48;
+            margin-bottom: 8px;
+        }
+
+        .cheer-desc {
+            font-size: 14px;
+            color: #475569;
+            line-height: 1.6;
+            margin-bottom: 18px;
+            background: #fff1f2;
+            border: 1px solid #fecdd3;
+            border-radius: 18px;
+            padding: 12px 14px;
+        }
+
+        .reset-btn {
+            background: #f1f5f9;
+            color: #64748b;
+            border: 1px solid #cbd5e1;
+            padding: 10px 24px;
+            border-radius: 30px;
+            font-family: 'Mitr', sans-serif;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .reset-btn:hover {
+            background: #e2e8f0;
+            color: #334155;
+        }
+
+        /* หยดน้ำกระเด็นรอบแก้ว */
+        .splash-drop {
+            position: absolute;
+            font-size: 20px;
+            pointer-events: none;
+            z-index: 35;
+            animation: splash 1s forwards ease-out;
+        }
+
+        @keyframes splash {
+            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; }
+            100% { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1.4); opacity: 0; }
+        }
+
+        /* อาการสั่นของจอตอนแกล้งสะดุด */
+        .shake-screen {
+            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-3px, 0, 0); }
+            20%, 80% { transform: translate3d(4px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-6px, 0, 0); }
+            40%, 60% { transform: translate3d(6px, 0, 0); }
         }
     </style>
 </head>
 <body>
 
-    <div class="mystic-bg"></div>
-    <canvas id="stars-canvas"></canvas>
+    <!-- ฟองหัวใจลอยพื้นหลัง -->
+    <div class="bg-bubbles" id="bubbles-container"></div>
 
-    <header>
-        <div class="tarot-badge">✦ THE CELESTIAL TAROT ✦</div>
-        <h1>ไพ่ทำนายพรพิเศษสำหรับเธอ</h1>
-        <p class="subtitle">เลือกแตะไพ่ทีละใบ เพื่อปลดล็อกคำทำนายและพรวิเศษประจำวัน 🔮</p>
-        <div class="progress-pill" id="progress-text">เปิดไพ่แล้ว: 0 / 5 ใบ</div>
-    </header>
-
-    <!-- คอนเทนเนอร์แสดงไพ่ทั้ง 5 ใบ -->
-    <div class="cards-container" id="cards-container">
-        <!-- ไพ่ทั้ง 5 ใบจะถูก Render ผ่าน JavaScript -->
-    </div>
-
-    <!-- Modal ขยายรายละเอียดไพ่และคำทำนาย -->
-    <div class="detail-modal" id="detail-modal" onclick="closeDetailModal(event)">
-        <div class="modal-card-box" id="modal-box">
-            <img src="" alt="Card Photo" class="modal-photo" id="modal-img">
-            <div class="modal-category" id="modal-cat">✦ หมวดหมู่ ✦</div>
-            <h2 class="modal-title" id="modal-title">ชื่อไพ่</h2>
-            <div class="modal-desc" id="modal-desc">คำทำนาย...</div>
-            <div class="modal-stat" id="modal-stat">ระดับ: 100%</div>
-            <button class="close-btn" onclick="closeDetailModalDirect()">รับพรข้อนี้แล้ว 💖</button>
+    <div class="card" id="main-card">
+        <!-- ป้ายแจ้งเตือนฮาๆ ตอนน้ำหก -->
+        <div class="alert-banner" id="alert-banner">
+            😱 อุ๊ยยย! มือลื่นนน สะดุดหกใส่เต็มแก้วเลยยย! 💦
         </div>
-    </div>
 
-    <!-- Modal ฉลองเปิดครบ 5 ใบ -->
-    <div class="celebration-modal" id="celebration-modal">
-        <div class="celebration-box">
-            <div class="celebration-icon">👑💖</div>
-            <h2 class="celebration-title">รวบรวมพรครบ 5 ข้อแล้ว!</h2>
-            <p class="celebration-msg">
-                จักรวาลทำนายไว้ชัดเจนว่า...<br>
-                <strong>เธอคือคนที่มีเสน่ห์และน่ารักที่สุดในสายตาเราเสมอ ✨</strong><br><br>
-                ขอให้ทุกคำทำนายในไพ่เป็นจริง ขอให้เธอมีความสุข เจอแต่เรื่องดีๆ และยิ้มเยอะๆ ในทุกวันนะคะ 🤍
-            </p>
-            <button class="close-btn" onclick="closeCelebration()">ยิ้มรับความสุขเต็มหัวใจ 🥰</button>
+        <!-- หน้าตอนเลือก % -->
+        <div id="quiz-section" style="width: 100%;">
+            <h1>เช็คระดับใจวันนี้หน่อย 🧃💖</h1>
+            <p class="sub-text">วันนี้รู้สึกดีกับเรากี่ % แล้ว? (หรือมีพลังใจกี่ % น้าา)</p>
+
+            <div class="stage">
+                <!-- เหยือกน้ำสีแดงจอมซุ่มซ่าม -->
+                <div class="pitcher" id="pitcher">🧃</div>
+                <!-- สายน้ำสีแดงที่กำลังพุ่งเท -->
+                <div class="water-stream" id="water-stream"></div>
+                
+                <div class="glass-rim"></div>
+                <div class="glass-cup">
+                    <div class="heart-badge">💖</div>
+                    <div class="red-liquid" id="red-liquid">
+                        <div class="liquid-wave"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- แสดง % แบบเรียลไทม์ -->
+            <div class="percent-display">
+                <span>ระดับ: </span>
+                <span id="percent-label">30%</span>
+            </div>
+
+            <div class="slider-section">
+                <input type="range" min="0" max="100" value="30" class="custom-slider" id="percent-slider" oninput="updateLiquid(this.value)">
+                <div class="slider-caption" id="slider-caption">"กำลังเริ่มหวั่นไหวเบาๆ แล้วนะเนี่ย 😉"</div>
+            </div>
+
+            <button class="confirm-btn" id="confirm-btn" onclick="startSpillPrank()">
+                <span>ยืนยันคำตอบนี้แหละ!</span>
+                <span>👉</span>
+            </button>
+        </div>
+
+        <!-- หน้าผลลัพธ์ฮาๆ + สติกเกอร์ดีใจ -->
+        <div class="result-section" id="result-section">
+            <img src="https://media.tenor.com/Jt-m5hF_oA4AAAAi/tkthao219-bubududu.gif" alt="Happy Sticker" class="happy-sticker" />
+            <h2 class="cheer-title">ล้นแก้ว 100% เรียบร้อยยย! 🎉❤️</h2>
+            <div class="cheer-desc">
+                "อุ๊ยมือลั่น! เทน้ำแดงหกใส่เต็มแก้วขนาดนี้<br>
+                <strong>ไม่รู้แหละ ถือว่าตอนนี้รู้สึกดีเต็มร้อยแล้วนะ! 😆</strong><br><br>
+                ไม่ว่าจะเหนื่อยกับอะไรมา เราขอส่งกำลังใจให้เต็มแก้วล้นปรี่ทุกวันเลยนะคนเก่ง สู้ๆ นะครับ! 🤍✨"
+            </div>
+            <button class="reset-btn" onclick="resetGame()">ลองตอบใหม่อีกรอบ 🔄</button>
         </div>
     </div>
 
     <script>
-        // ข้อมูลไพ่ทาโรต์ทั้ง 5 ใบที่นำรูปของเขามาจัดเป็นการ์ดสวยงาม
-        const tarotCards = [
-            {
-                id: 1,
-                number: "CARD I",
-                symbol: "✌️",
-                title: "คนน่ารักอันดับ ๑",
-                category: "✦ ความสดใส & เสน่ห์ ✦",
-                image: "images/card1.png",
-                desc: "ดวงชะตาบอกไว้ว่าใครสุ่มได้ไพ่ใบนี้ จะมีพลังทำลายล้างหัวใจสูงมาก! แค่ยิ้มและทำท่าสองนิ้ว ก็ทำให้คนรอบข้างตกหลุมรักแบบถอนตัวไม่ขึ้น ไม่ว่าจะทำอะไรก็น่าเอ็นดูไปหมด วันนี้คุณจะได้เป็นความสดใสของใครบางคนนะ (ซึ่งก็คือเรานี่แหละ 🙈💖)",
-                stat: "✨ พลังความน่ารัก: ∞ / 100 (เกินต้านทาน)"
-            },
-            {
-                id: 2,
-                number: "CARD II",
-                symbol: "🌟",
-                title: "คนเก่งแห่งจักรวาล",
-                category: "✦ ความสำเร็จ & พลังใจ ✦",
-                image: "images/card2.jpg",
-                desc: "ไพ่ใบนี้เป็นตัวแทนของคนเก่ง! ไม่ว่าเธอจะเจอเรื่องยากแค่ไหน หรือเหนื่อยกับอะไรมา เธอจะผ่านมันไปได้อย่างงดงามเสมอ วันนี้จะมีแต่สิ่งดีๆ พุ่งเข้าใส่ ขอให้มั่นใจในตัวเองเข้าไว้ เธอคือดาวเด่นที่เปล่งประกายที่สุดนะคนเก่ง 💫",
-                stat: "⚡ ออร่าความปัง & ความสำเร็จ: 1000%"
-            },
-            {
-                id: 3,
-                number: "CARD III",
-                symbol: "😉",
-                title: "ไพ่ขโมยหัวใจ",
-                category: "✦ เสน่ห์สะกดใจ ✦",
-                image: "images/card3.jpg",
-                desc: "เตือนแล้วนะ! การขยิบตาหรือสบตาเพียงเสี้ยววินาที มีพลังทำให้ใครบางคนใจละลายจนเสียอาการ! ไพ่ใบนี้ทำนายว่าช่วงนี้จะมีคนแอบคิดถึงเธออยู่ตลอดเวลา... ถ้าจามโดยไม่รู้สาเหตุ ไม่ต้องสงสัยนะ นั่นคือความคิดถึงจากเราเอง 🥰💘",
-                stat: "🎯 ดาเมจขโมยใจ: คริติคอล 9999+"
-            },
-            {
-                id: 4,
-                number: "CARD IV",
-                symbol: "🌅",
-                title: "ความสงบ & ความสุข",
-                category: "✦ พรแห่งความสุข ✦",
-                image: "images/card4.png",
-                desc: "ขอให้ท้องฟ้า แสงแดดยามเย็น และสายน้ำโอบกอดเธอไว้ ไพ่ใบนี้มอบพรแห่งความสุข ไร้เรื่องทุกข์ใจ จะมีเรื่องทำให้เธอยิ้มได้กว้างๆ ทั้งวัน หลับฝันดีทุกคืน และไม่ว่าจะมองไปทางไหน ก็ขอให้มีแต่ความสบายใจอยู่รอบตัวเธอนะ 🤍",
-                stat: "🕊️ ระดับความสบายใจ: เต็มเปี่ยม 100%"
-            },
-            {
-                id: 5,
-                number: "CARD V",
-                symbol: "💐",
-                title: "รอยยิ้มพิมพ์ใจ",
-                category: "✦ พรแห่งความสมหวัง ✦",
-                image: "images/card5.png",
-                desc: "ไพ่ใบพิเศษสูงสุด! ทำนายว่าใครที่จิ้มแก้มตัวเองแบบนี้ จะได้พบกับความรักที่แสนดีและดูแลเธออย่างจริงใจ ที่สำคัญ... ไพ่ใบนี้ระบุไว้ชัดเจนว่า 'ขอให้เธอถูกรักอย่างดีที่สุด และมีความสุขในทุกวัน' ถ้ายังไม่มีใครทำหน้าที่นั้น ขอสมัครเป็นคนนั้นได้ไหมครับ? 🥺💐",
-                stat: "💖 ความเหมาะสมกับเรา: 100/100 (พรหมลิขิต)"
+        // สร้างฟองหัวใจลอยในพื้นหลัง
+        const bubblesContainer = document.getElementById('bubbles-container');
+        const icons = ['💖', '🧃', '🌸', '✨', '🍓', '💕'];
+        for (let i = 0; i < 15; i++) {
+            const b = document.createElement('div');
+            b.className = 'bubble';
+            b.innerText = icons[Math.floor(Math.random() * icons.length)];
+            b.style.left = Math.random() * 100 + 'vw';
+            b.style.animationDelay = (Math.random() * 5) + 's';
+            b.style.animationDuration = (5 + Math.random() * 5) + 's';
+            bubblesContainer.appendChild(b);
+        }
+
+        const liquid = document.getElementById('red-liquid');
+        const percentLabel = document.getElementById('percent-label');
+        const sliderCaption = document.getElementById('slider-caption');
+        const slider = document.getElementById('percent-slider');
+
+        // คำบรรยายตาม % ที่เลือก
+        const captions = {
+            0: "0% เลยหรอ... ใจร้ายยย เดี๋ยวเติมให้! 🥺",
+            20: "20% นิดนึงก็ยังดีเนอะ 🤏",
+            40: "40% กำลังเริ่มหวั่นไหวเบาๆ แล้วนะเนี่ย 😉",
+            60: "60% เกินครึ่งแล้วนะ เขินตัวบิดแล้วเนี่ยยย 🙈",
+            80: "80% ปากแข็งเปล่าเนี่ยยย ใกล้เต็มแล้ววว 💕",
+            100: "100% เต็มแก้วแล้วนะ ห้ามคืนคำเด็ดขาด! 🥰"
+        };
+
+        function updateLiquid(val) {
+            liquid.style.height = Math.max(10, val) + '%';
+            percentLabel.innerText = val + '%';
+
+            // หาแคปชันที่ใกล้เคียง
+            let closest = 0;
+            for (let k in captions) {
+                if (val >= k) closest = k;
             }
-        ];
+            sliderCaption.innerText = captions[closest];
+        }
 
-        let openedCount = 0;
-        const openedSet = new Set();
-
-        // สร้างไพ่ 5 ใบลงในหน้าเว็บ
-        const container = document.getElementById('cards-container');
-        tarotCards.forEach((card, index) => {
-            const cardEl = document.createElement('div');
-            cardEl.className = 'tarot-card';
-            cardEl.id = `card-${card.id}`;
-            cardEl.innerHTML = `
-                <div class="card-face card-back">
-                    <div class="card-back-frame">
-                        <div class="card-back-symbol">${card.symbol}</div>
-                        <div class="card-number">${card.number}</div>
-                        <div class="tap-prompt">แตะเพื่อเปิดไพ่ ✨</div>
-                    </div>
-                </div>
-                <div class="card-face card-front">
-                    <div class="card-photo-wrapper">
-                        <img src="${card.image}" alt="${card.title}" class="card-photo" loading="lazy">
-                    </div>
-                    <div class="card-front-info">
-                        <div class="card-front-title">${card.title}</div>
-                        <div class="card-front-tap">แตะดูคำทำนาย 🔮</div>
-                    </div>
-                </div>
-            `;
-
-            cardEl.addEventListener('click', (e) => {
-                handleCardClick(card, cardEl, e);
-            });
-
-            container.appendChild(cardEl);
-        });
-
-        // ระบบเสียงเวทมนตร์สังเคราะห์ (Web Audio API)
+        // Web Audio API สังเคราะห์เสียงน้ำเทจ๊อกๆ & เสียง Ta-da!
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
         let audioCtx;
 
-        function playMagicChime(freq = 523.25) {
+        function playSound(type) {
             try {
                 if (!audioCtx) audioCtx = new AudioCtx();
                 if (audioCtx.state === 'suspended') audioCtx.resume();
-                
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                
-                osc.type = 'triangle';
-                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
 
-                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 1.2);
-
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-
-                osc.start();
-                osc.stop(audioCtx.currentTime + 1.2);
+                if (type === 'pour') {
+                    // เสียงน้ำเทลงแก้ว (ฟองสบู่ / น้ำไหล)
+                    for (let i = 0; i < 12; i++) {
+                        setTimeout(() => {
+                            const osc = audioCtx.createOscillator();
+                            const gain = audioCtx.createGain();
+                            osc.type = 'sine';
+                            osc.frequency.setValueAtTime(300 + Math.random() * 400, audioCtx.currentTime);
+                            gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+                            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
+                            osc.connect(gain);
+                            gain.connect(audioCtx.destination);
+                            osc.start();
+                            osc.stop(audioCtx.currentTime + 0.15);
+                        }, i * 70);
+                    }
+                } else if (type === 'cheer') {
+                    // เสียง Ta-da ดีใจ
+                    [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+                        setTimeout(() => {
+                            const osc = audioCtx.createOscillator();
+                            const gain = audioCtx.createGain();
+                            osc.type = 'triangle';
+                            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                            gain.gain.setValueAtTime(0.14, audioCtx.currentTime);
+                            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.6);
+                            osc.connect(gain);
+                            gain.connect(audioCtx.destination);
+                            osc.start();
+                            osc.stop(audioCtx.currentTime + 0.6);
+                        }, idx * 110);
+                    });
+                }
             } catch(e) {}
         }
 
-        // จัดการคลิกไพ่
-        function handleCardClick(card, cardEl, event) {
-            const isAlreadyFlipped = cardEl.classList.contains('flipped');
+        // เริ่มต้นแผนแกล้งทำเป็นสะดุดน้ำหกใส่เต็มแก้ว 100%!
+        function startSpillPrank() {
+            const card = document.getElementById('main-card');
+            const pitcher = document.getElementById('pitcher');
+            const stream = document.getElementById('water-stream');
+            const alertBanner = document.getElementById('alert-banner');
+            const confirmBtn = document.getElementById('confirm-btn');
 
-            if (!isAlreadyFlipped) {
-                // พลิกไพ่ 3D
-                cardEl.classList.add('flipped');
-                
-                // เล่นเสียงกระดิ่งเวทมนตร์ (D5 -> G5)
-                playMagicChime(587.33);
-                setTimeout(() => playMagicChime(783.99), 120);
+            confirmBtn.disabled = true;
 
-                // ปล่อยละอองเวทมนตร์
-                const rect = cardEl.getBoundingClientRect();
-                spawnMagicSparkles(rect.left + rect.width / 2, rect.top + rect.height / 2);
+            // 1. จอสั่นเบาๆ แกล้งทำเป็นสะดุดล้ม
+            card.classList.add('shake-screen');
+            setTimeout(() => card.classList.remove('shake-screen'), 500);
 
-                // นับจำนวนไพ่ที่เปิด
-                if (!openedSet.has(card.id)) {
-                    openedSet.add(card.id);
-                    openedCount++;
-                    document.getElementById('progress-text').innerText = `เปิดไพ่แล้ว: ${openedCount} / 5 ใบ`;
-                }
+            // 2. ป้ายเตือนเด้งขึ้นมา
+            alertBanner.classList.add('show');
 
-                // รอพลิกไพ่เสร็จแล้วค่อยเปิด Modal ขยายคำทำนาย
+            // 3. เหยือกน้ำโผล่มาเอียงเทน้ำ
+            pitcher.classList.add('pouring');
+
+            setTimeout(() => {
+                // สายน้ำพุ่งลงมา
+                stream.classList.add('active');
+                playSound('pour');
+
+                // น้ำในแก้วค่อยๆ ไหลขึ้นจนทะลัก 100%
+                liquid.style.height = '100%';
+                percentLabel.innerText = '100% [ล้นแก้ว!]';
+
+                // ปล่อยหยดน้ำกระเด็น
+                spawnSplashes();
+            }, 400);
+
+            // 4. หลังจากเทเสร็จ 1.5 วินาที -> สรุปความดีใจ
+            setTimeout(() => {
+                stream.classList.remove('active');
+                pitcher.classList.remove('pouring');
+                alertBanner.classList.remove('show');
+                playSound('cheer');
+
+                // สลับไปหน้าดีใจ
+                document.getElementById('quiz-section').style.display = 'none';
+                document.getElementById('result-section').style.display = 'flex';
+            }, 1800);
+        }
+
+        // ปล่อยละอองน้ำแดงกระเด็น
+        function spawnSplashes() {
+            const stage = document.querySelector('.stage');
+            const rect = stage.getBoundingClientRect();
+            const cx = rect.left + rect.width / 2;
+            const cy = rect.top + 70;
+
+            const drops = ['💦', '❤️', '🍓', '✨', '💧'];
+            for (let i = 0; i < 16; i++) {
                 setTimeout(() => {
-                    openDetailModal(card);
-                }, 700);
-            } else {
-                // ถ้าพลิกอยู่แล้ว ให้เปิดดูคำทำนายได้ทันที
-                playMagicChime(659.25);
-                openDetailModal(card);
-            }
-        }
+                    const el = document.createElement('div');
+                    el.className = 'splash-drop';
+                    el.innerText = drops[Math.floor(Math.random() * drops.length)];
+                    el.style.left = cx + 'px';
+                    el.style.top = cy + 'px';
 
-        // เปิด Modal รายละเอียดไพ่
-        function openDetailModal(card) {
-            document.getElementById('modal-img').src = card.image;
-            document.getElementById('modal-cat').innerText = card.category;
-            document.getElementById('modal-title').innerText = card.title;
-            document.getElementById('modal-desc').innerText = card.desc;
-            document.getElementById('modal-stat').innerText = card.stat;
+                    const angle = Math.random() * Math.PI * 2;
+                    const dist = Math.random() * 80 + 30;
+                    el.style.setProperty('--dx', (Math.cos(angle) * dist) + 'px');
+                    el.style.setProperty('--dy', (Math.sin(angle) * dist - 20) + 'px');
 
-            document.getElementById('detail-modal').classList.add('active');
-        }
-
-        function closeDetailModal(e) {
-            if (e.target.id === 'detail-modal') {
-                closeDetailModalDirect();
-            }
-        }
-
-        function closeDetailModalDirect() {
-            document.getElementById('detail-modal').classList.remove('active');
-
-            // ตรวจสอบว่าเปิดครบทั้ง 5 ใบแล้วหรือยัง
-            if (openedCount === 5) {
-                setTimeout(() => {
-                    triggerCelebration();
-                }, 400);
-            }
-        }
-
-        // ปล่อยพลุเวทมนตร์ฉลองเมื่อครบ 5 ใบ
-        function triggerCelebration() {
-            // เล่นเสียงคอร์ดฉลอง
-            [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
-                setTimeout(() => playMagicChime(freq), idx * 150);
-            });
-
-            // ปล่อยประกายดาวทั่วหน้าจอ
-            for (let i = 0; i < 30; i++) {
-                setTimeout(() => {
-                    spawnMagicSparkles(
-                        Math.random() * window.innerWidth,
-                        Math.random() * window.innerHeight
-                    );
+                    document.body.appendChild(el);
+                    setTimeout(() => el.remove(), 1000);
                 }, i * 60);
             }
-
-            document.getElementById('celebration-modal').classList.add('active');
         }
 
-        function closeCelebration() {
-            document.getElementById('celebration-modal').classList.remove('active');
+        // รีเซ็ตเกมเพื่อเล่นใหม่
+        function resetGame() {
+            document.getElementById('result-section').style.display = 'none';
+            document.getElementById('quiz-section').style.display = 'block';
+            document.getElementById('confirm-btn').disabled = false;
+            slider.value = 30;
+            updateLiquid(30);
         }
-
-        // ละอองประกายเวทมนตร์
-        function spawnMagicSparkles(x, y) {
-            const emojis = ['✨', '⭐', '💖', '🔮', '🌟', '🤍', '🌙'];
-            for (let i = 0; i < 14; i++) {
-                const el = document.createElement('div');
-                el.className = 'magic-particle';
-                el.innerText = emojis[Math.floor(Math.random() * emojis.length)];
-                el.style.left = x + 'px';
-                el.style.top = y + 'px';
-                el.style.fontSize = (Math.random() * 16 + 14) + 'px';
-
-                const angle = Math.random() * Math.PI * 2;
-                const dist = Math.random() * 120 + 30;
-                const dx = Math.cos(angle) * dist + 'px';
-                const dy = Math.sin(angle) * dist + 'px';
-                const rot = (Math.random() * 360) + 'deg';
-
-                el.style.setProperty('--dx', dx);
-                el.style.setProperty('--dy', dy);
-                el.style.setProperty('--rot', rot);
-
-                document.body.appendChild(el);
-                setTimeout(() => el.remove(), 1800);
-            }
-        }
-
-        // Canvas ดวงดาวพื้นหลังระยิบระยับ
-        const canvas = document.getElementById('stars-canvas');
-        const ctx = canvas.getContext('2d');
-        let stars = [];
-
-        function resize() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            initStars();
-        }
-
-        function initStars() {
-            stars = [];
-            const count = Math.min(80, Math.floor((canvas.width * canvas.height) / 7000));
-            for (let i = 0; i < count; i++) {
-                stars.push({
-                    x: Math.random() * canvas.width,
-                    y: Math.random() * canvas.height,
-                    radius: Math.random() * 1.5 + 0.5,
-                    alpha: Math.random() * 0.8 + 0.2,
-                    speed: Math.random() * 0.02 + 0.005
-                });
-            }
-        }
-
-        function drawStars() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            for (let s of stars) {
-                s.alpha += s.speed;
-                if (s.alpha > 1 || s.alpha < 0.2) s.speed = -s.speed;
-                ctx.beginPath();
-                ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(254, 240, 138, ${Math.abs(s.alpha)})`;
-                ctx.fill();
-            }
-            requestAnimationFrame(drawStars);
-        }
-
-        window.addEventListener('resize', resize);
-        resize();
-        drawStars();
     </script>
 </body>
 </html>
