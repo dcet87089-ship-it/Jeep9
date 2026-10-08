@@ -48,7 +48,7 @@ let orbitVelY = 0;
 // Parametric Heart 3D:
 // x = 16 * sin(t)^3
 // y = 13*cos(t) - 5*cos(2t) - 2*cos(3t) - cos(4t)
-// with volumetric expansion and Z depth
+// with perfectly symmetrical 3D volumetric thickness
 function getHeartPosition(t, u, v) {
     const xBase = 16 * Math.pow(Math.sin(t), 3);
     const yBase = 13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t);
@@ -58,9 +58,9 @@ function getHeartPosition(t, u, v) {
     const x = xBase * r * CONFIG.heartScale;
     const y = yBase * r * CONFIG.heartScale;
     
-    // Calculate realistic 3D thickness
+    // Symmetrical 3D thickness (pure, balanced depth across both lobes)
     const maxThickness = (1.0 - Math.pow(r, 1.8)) * 8.5 + 1.2;
-    const z = (v - 0.5) * 2 * maxThickness * CONFIG.heartScale * (0.8 + 0.4 * Math.sin(t * 2));
+    const z = (v - 0.5) * 2 * maxThickness * CONFIG.heartScale;
     
     return { x, y, z };
 }
@@ -208,6 +208,16 @@ const REJECT_TEASES = [
 let rejectTeaseIndex = 0;
 let isGateOpen = true;
 let balloonTimer = null;
+let photoQueue = [];
+let lastZoneIndex = 0;
+
+// Distinct photo cycle queue - guarantees all 5 photos appear without repeats
+function getNextPhoto() {
+    if (photoQueue.length === 0) {
+        photoQueue = [...BALLOON_IMAGES].sort(() => Math.random() - 0.5);
+    }
+    return photoQueue.pop();
+}
 
 function initGateAndRunaway() {
     const gateOverlay = document.getElementById('gate-overlay');
@@ -223,27 +233,33 @@ function initGateAndRunaway() {
             e.stopPropagation();
         }
 
-        // 1. Advance text first so measured size is accurate
+        // Attach directly to body so position: fixed is genuinely relative to viewport
+        if (btnReject.parentNode !== document.body) {
+            document.body.appendChild(btnReject);
+        }
+
+        // Advance playful tease text
         rejectTeaseIndex = (rejectTeaseIndex + 1) % REJECT_TEASES.length;
         if (rejectText) {
             rejectText.textContent = REJECT_TEASES[rejectTeaseIndex];
         }
 
         btnReject.style.position = 'fixed';
-        btnReject.style.zIndex = '1000';
+        btnReject.style.zIndex = '99999';
 
-        // 2. Measure actual dimensions and screen bounds
+        // Accurately measure button and safe screen bounds
         const btnW = btnReject.offsetWidth || 135;
         const btnH = btnReject.offsetHeight || 44;
-        const screenW = Math.min(window.innerWidth, document.documentElement.clientWidth);
-        const screenH = Math.min(window.innerHeight, document.documentElement.clientHeight);
+        const screenW = window.innerWidth;
+        const screenH = window.innerHeight;
 
-        const padX = 16;
-        const padY = 24;
-        const maxX = Math.max(padX, screenW - btnW - padX);
-        const maxY = Math.max(padY, screenH - btnH - padY);
+        const padX = 20;
+        const padY = 55; // safe for status bar / navigation bar
+        const minX = padX;
+        const maxX = Math.max(minX, screenW - btnW - padX);
+        const minY = padY;
+        const maxY = Math.max(minY, screenH - btnH - padY);
 
-        // 3. Find pointer / touch location
         let touchX = screenW / 2;
         let touchY = screenH / 2;
         if (e) {
@@ -256,24 +272,24 @@ function initGateAndRunaway() {
             }
         }
 
-        // 4. Calculate target coordinates far from finger (opposite half)
+        // Calculate target location far from finger (opposite side)
         let targetX;
         if (touchX < screenW / 2) {
-            targetX = (screenW * 0.5) + Math.random() * (maxX - (screenW * 0.5));
+            targetX = (screenW * 0.52) + Math.random() * Math.max(10, maxX - (screenW * 0.52));
         } else {
-            targetX = padX + Math.random() * Math.max(10, (screenW * 0.5) - btnW - padX);
+            targetX = minX + Math.random() * Math.max(10, (screenW * 0.45) - btnW - minX);
         }
 
         let targetY;
         if (touchY < screenH / 2) {
-            targetY = (screenH * 0.5) + Math.random() * (maxY - (screenH * 0.5));
+            targetY = (screenH * 0.52) + Math.random() * Math.max(10, maxY - (screenH * 0.52));
         } else {
-            targetY = padY + Math.random() * Math.max(10, (screenH * 0.5) - btnH - padY);
+            targetY = minY + Math.random() * Math.max(10, (screenH * 0.45) - btnH - minY);
         }
 
-        // 5. Strict clamping - 100% guaranteed never outside screen
-        targetX = Math.max(padX, Math.min(maxX, targetX));
-        targetY = Math.max(padY, Math.min(maxY, targetY));
+        // Strict clamp inside screen
+        targetX = Math.max(minX, Math.min(maxX, targetX));
+        targetY = Math.max(minY, Math.min(maxY, targetY));
 
         btnReject.style.left = `${Math.round(targetX)}px`;
         btnReject.style.top = `${Math.round(targetY)}px`;
@@ -289,6 +305,9 @@ function initGateAndRunaway() {
         isGateOpen = false;
         createAcceptBurst(btnAccept);
         gateOverlay.classList.add('hidden');
+        if (btnReject && btnReject.parentElement) {
+            btnReject.remove(); // Remove runaway button completely
+        }
         restartAssembly();
         startHeartBalloons();
     });
@@ -324,32 +343,32 @@ function createAcceptBurst(el) {
     }
 }
 
-// Launch all 5 photos across the screen simultaneously without repeating!
-function launchAllBalloonsWave() {
+// Release 1 - 2 graceful balloons at a time (never crowded or chaotic)
+function spawnGracefulBalloons() {
     const container = document.getElementById('balloons-container');
     if (!container || isGateOpen) return;
 
-    // 5 distinct horizontal slots so all 5 photos are distributed across the width
-    const baseSlots = isMobile 
-        ? [6, 26, 48, 68, 88] 
-        : [8, 28, 48, 68, 88];
+    // Release 1 or 2 balloons at a time
+    const count = Math.random() < 0.65 ? 1 : 2;
 
-    // Shuffle slot assignments so photos aren't always in identical columns
-    const shuffledSlots = [...baseSlots].sort(() => Math.random() - 0.5);
+    const zones = [
+        { min: 8, max: 30 },
+        { min: 38, max: 62 },
+        { min: 70, max: 90 }
+    ];
 
-    BALLOON_IMAGES.forEach((imgSrc, index) => {
-        const slotX = shuffledSlots[index];
-        const jitter = (Math.random() - 0.5) * 5;
-        const leftPercent = Math.max(4, Math.min(90, slotX + jitter));
-
-        // Slight natural stagger (0ms, 180ms, 360ms...)
-        const staggerDelay = index * 180;
-
+    for (let i = 0; i < count; i++) {
         setTimeout(() => {
             if (isGateOpen) return;
-            spawnSingleHeartBalloon(imgSrc, leftPercent, index);
-        }, staggerDelay);
-    });
+            const imgSrc = getNextPhoto();
+
+            lastZoneIndex = (lastZoneIndex + 1 + Math.floor(Math.random() * 2)) % zones.length;
+            const zone = zones[lastZoneIndex];
+            const leftPercent = zone.min + Math.random() * (zone.max - zone.min);
+
+            spawnSingleHeartBalloon(imgSrc, leftPercent, i);
+        }, i * 350);
+    }
 }
 
 function spawnSingleHeartBalloon(imgSrc, leftPercent, index) {
@@ -359,13 +378,13 @@ function spawnSingleHeartBalloon(imgSrc, leftPercent, index) {
     const balloon = document.createElement('div');
     balloon.className = 'heart-balloon';
 
-    // Brisk, lively float duration: 5.2s - 7.2s (no more slow crawling!)
+    // Lively float speed: 5.4s - 7.0s
     const duration = isMobile 
-        ? (5.2 + Math.random() * 1.6) 
-        : (5.8 + Math.random() * 1.8);
-    const swayDuration = 2.0 + Math.random() * 1.2;
+        ? (5.4 + Math.random() * 1.5) 
+        : (5.8 + Math.random() * 1.6);
+    const swayDuration = 2.0 + Math.random() * 1.0;
     const swayDist = 12 + Math.random() * 14;
-    const rotEnd = (Math.random() - 0.5) * 26;
+    const rotEnd = (Math.random() - 0.5) * 24;
     const size = isMobile ? (72 + (index % 2) * 8) : (88 + (index % 2) * 12);
 
     balloon.style.left = `${leftPercent}%`;
@@ -394,7 +413,6 @@ function spawnSingleHeartBalloon(imgSrc, leftPercent, index) {
 
     container.appendChild(balloon);
 
-    // Cleanup after float finishes
     setTimeout(() => {
         if (balloon && balloon.parentElement) {
             balloon.remove();
@@ -420,21 +438,40 @@ function popBalloon(balloon, clickX, clickY) {
 }
 
 function startHeartBalloons() {
-    if (balloonTimer) clearInterval(balloonTimer);
+    if (balloonTimer) clearTimeout(balloonTimer);
 
-    // Launch all 5 photos immediately!
-    launchAllBalloonsWave();
+    // Initial release: 2 balloons to begin gracefully
+    spawnGracefulBalloons();
 
-    // Repeat fresh waves of all 5 photos every 5.8s
-    balloonTimer = setInterval(() => {
+    // Release 1-2 balloons every 2.4 - 3.2 seconds
+    function loop() {
         if (!isGateOpen) {
-            launchAllBalloonsWave();
+            spawnGracefulBalloons();
         }
-    }, 5800);
+        const delay = 2400 + Math.random() * 800;
+        balloonTimer = setTimeout(loop, delay);
+    }
+    balloonTimer = setTimeout(loop, 2200);
 }
 
 function restartAssembly() {
     assembleStartTime = clock.getElapsedTime();
+    orbitRotX = 0;
+    orbitRotY = 0;
+    orbitVelX = 0;
+    orbitVelY = 0;
+    mouse.x = 0;
+    mouse.y = 0;
+    mouse.targetX = 0;
+    mouse.targetY = 0;
+    if (heartParticles) {
+        heartParticles.rotation.set(0, 0, 0);
+    }
+    if (auraParticles) {
+        auraParticles.rotation.set(0, 0, 0);
+    }
+    camera.position.set(0, 0, getCameraBaseZ());
+    camera.lookAt(0, 0, 0);
 }
 
 function onTriggerPulse() {
@@ -443,6 +480,7 @@ function onTriggerPulse() {
 }
 
 function onTouchStart(e) {
+    if (isGateOpen) return;
     if (e.touches.length > 0) {
         isTouching = true;
         touchDragDistance = 0;
@@ -454,6 +492,7 @@ function onTouchStart(e) {
 }
 
 function onTouchMove(e) {
+    if (isGateOpen) return;
     if (e.touches.length > 0) {
         const clientX = e.touches[0].clientX;
         const clientY = e.touches[0].clientY;
@@ -473,14 +512,15 @@ function onTouchMove(e) {
 }
 
 function onTouchEnd() {
+    if (isGateOpen) return;
     isTouching = false;
-    // If it was a tap without significant dragging, trigger heartbeat shockwave
     if (touchDragDistance < 10) {
         onTriggerPulse();
     }
 }
 
 function onDeviceOrientation(e) {
+    if (isGateOpen) return;
     if (e.gamma !== null && e.beta !== null && !isTouching) {
         const gx = Math.min(Math.max(e.gamma / 30, -1), 1);
         const gy = Math.min(Math.max((e.beta - 45) / 30, -1), 1);
@@ -684,6 +724,7 @@ function onWindowResize() {
 }
 
 function onPointerMove(e) {
+    if (isGateOpen) return;
     if (!isTouching) {
         mouse.targetX = (e.clientX - windowHalfX) * 0.0018;
         mouse.targetY = (e.clientY - windowHalfY) * 0.0018;
@@ -695,6 +736,7 @@ function animate() {
 
     const currentTime = clock.getElapsedTime();
     const elapsedTimeSinceAssemble = currentTime - assembleStartTime;
+    const activeTime = Math.max(0, elapsedTimeSinceAssemble);
 
     // 1. Mouse smooth parallax damping
     mouse.x += (mouse.targetX - mouse.x) * 0.045;
@@ -709,9 +751,11 @@ function animate() {
 
     // Dynamic responsive camera distance for mobile portrait & landscape
     const baseZ = getCameraBaseZ();
-    camera.position.x = Math.sin(currentTime * 0.25) * 0.8 + mouse.x * 4.5;
-    camera.position.y = Math.cos(currentTime * 0.2) * 0.5 - mouse.y * 4.5;
-    camera.position.z = baseZ + Math.sin(currentTime * 0.3) * 0.3;
+    const camHoverX = isGateOpen ? 0 : Math.sin(activeTime * 0.25) * 0.35;
+    const camHoverY = isGateOpen ? 0 : Math.sin(activeTime * 0.2) * 0.25;
+    camera.position.x = camHoverX + mouse.x * 3.5;
+    camera.position.y = camHoverY - mouse.y * 3.5;
+    camera.position.z = baseZ + (isGateOpen ? 0 : Math.sin(activeTime * 0.3) * 0.3);
     camera.lookAt(0, 0, 0);
 
     // 2. Assembly progress (0 -> 1 over CONFIG.assembleDuration)
@@ -768,10 +812,10 @@ function animate() {
                 positions[i3 + 2] = curZ;
             }
         }
-        heartGeometry.attributes.position.needsUpdate = true;
-
-        heartParticles.rotation.y = Math.sin(currentTime * 0.4) * 0.12 + orbitRotY;
-        heartParticles.rotation.x = Math.cos(currentTime * 0.3) * 0.06 + orbitRotX;
+        const idleRotY = isGateOpen ? 0 : Math.sin(activeTime * 0.35) * 0.07;
+        const idleRotX = isGateOpen ? 0 : Math.sin(activeTime * 0.25) * 0.03;
+        heartParticles.rotation.y = idleRotY + orbitRotY;
+        heartParticles.rotation.x = idleRotX + orbitRotX;
     }
 
     // 5. Update Floating Aura Particles (Both Inward and Outward flow)
