@@ -169,6 +169,9 @@ function init() {
         }
     }
 
+    // Initialize Gate Modal and Runaway Button
+    initGateAndRunaway();
+
     const titleEl = document.querySelector('.title');
     if (titleEl) {
         titleEl.style.cursor = 'pointer';
@@ -182,11 +185,215 @@ function init() {
     animate();
 }
 
+// Balloon photos array
+const BALLOON_IMAGES = [
+    'images/card1.png',
+    'images/card2.jpg',
+    'images/card3.jpg',
+    'images/card4.png',
+    'images/card5.png'
+];
+
+const REJECT_TEASES = [
+    'ไม่รับ 😜',
+    'เอ๊ะ กดไม่ทันหรอก 🏃‍♂️💨',
+    'แน่ะ จะไม่รับจริงหยอ 🥺',
+    'ไม่ให้กดดด 😝',
+    'ยอมรับเถอะน้าา 💕',
+    'กดปุ่มรับดีกว่าาา 👉💖',
+    'หนีอีกรอบบบ 💨',
+    'อย่าน้าา รับเถอะ 🥺'
+];
+
+let rejectTeaseIndex = 0;
+let isGateOpen = true;
+let balloonTimer = null;
+
+function initGateAndRunaway() {
+    const gateOverlay = document.getElementById('gate-overlay');
+    const btnAccept = document.getElementById('btn-accept');
+    const btnReject = document.getElementById('btn-reject');
+    const rejectText = document.getElementById('reject-text');
+
+    if (!btnReject || !btnAccept || !gateOverlay) return;
+
+    function runawayButton(e) {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        const rect = btnReject.getBoundingClientRect();
+        const pad = 24;
+        const maxX = Math.max(pad + 10, window.innerWidth - rect.width - pad);
+        const maxY = Math.max(pad + 10, window.innerHeight - rect.height - pad);
+
+        let randX = Math.max(pad, Math.floor(Math.random() * maxX));
+        let randY = Math.max(pad, Math.floor(Math.random() * maxY));
+
+        // Ensure button jumps away from touch/pointer position
+        let touchX = window.innerWidth / 2;
+        let touchY = window.innerHeight / 2;
+        if (e) {
+            if (e.clientX !== undefined) {
+                touchX = e.clientX;
+                touchY = e.clientY;
+            } else if (e.touches && e.touches[0]) {
+                touchX = e.touches[0].clientX;
+                touchY = e.touches[0].clientY;
+            }
+        }
+
+        if (Math.abs(randX - touchX) < 100) {
+            randX = (randX + 160) % maxX;
+            if (randX < pad) randX = pad;
+        }
+        if (Math.abs(randY - touchY) < 80) {
+            randY = (randY + 160) % maxY;
+            if (randY < pad) randY = pad;
+        }
+
+        btnReject.style.position = 'fixed';
+        btnReject.style.left = `${randX}px`;
+        btnReject.style.top = `${randY}px`;
+        btnReject.style.zIndex = '1000';
+
+        rejectTeaseIndex = (rejectTeaseIndex + 1) % REJECT_TEASES.length;
+        if (rejectText) {
+            rejectText.textContent = REJECT_TEASES[rejectTeaseIndex];
+        }
+    }
+
+    // Run away on hover, touch, pointer
+    btnReject.addEventListener('mouseenter', runawayButton);
+    btnReject.addEventListener('touchstart', runawayButton, { passive: false });
+    btnReject.addEventListener('pointerdown', runawayButton);
+
+    // Accept button logic
+    btnAccept.addEventListener('click', (e) => {
+        isGateOpen = false;
+        createAcceptBurst(btnAccept);
+        gateOverlay.classList.add('hidden');
+        restartAssembly();
+        startHeartBalloons();
+    });
+}
+
+function createAcceptBurst(el) {
+    const rect = el.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    const emojis = ['💖', '✨', '💕', '🌸', '💝', '🎉'];
+
+    for (let i = 0; i < 22; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'balloon-burst-particle';
+        particle.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+
+        const angle = Math.random() * Math.PI * 2;
+        const dist = 60 + Math.random() * 130;
+        const tx = `${Math.cos(angle) * dist}px`;
+        const ty = `${Math.sin(angle) * dist}px`;
+        const rot = `${(Math.random() - 0.5) * 360}deg`;
+        const duration = `${0.6 + Math.random() * 0.5}s`;
+
+        particle.style.left = `${centerX}px`;
+        particle.style.top = `${centerY}px`;
+        particle.style.setProperty('--tx', tx);
+        particle.style.setProperty('--ty', ty);
+        particle.style.setProperty('--rot', rot);
+        particle.style.setProperty('--duration', duration);
+
+        document.body.appendChild(particle);
+        setTimeout(() => particle.remove(), 1200);
+    }
+}
+
+function spawnHeartBalloon() {
+    const container = document.getElementById('balloons-container');
+    if (!container || isGateOpen) return;
+
+    const balloon = document.createElement('div');
+    balloon.className = 'heart-balloon';
+
+    const imgSrc = BALLOON_IMAGES[Math.floor(Math.random() * BALLOON_IMAGES.length)];
+    const leftPercent = 5 + Math.random() * 82;
+    const duration = 12 + Math.random() * 8;
+    const swayDuration = 2.6 + Math.random() * 2.0;
+    const swayDist = 15 + Math.random() * 20;
+    const rotEnd = (Math.random() - 0.5) * 30;
+    const size = isMobile ? (70 + Math.random() * 14) : (88 + Math.random() * 20);
+
+    balloon.style.left = `${leftPercent}%`;
+    balloon.style.setProperty('--balloon-size', `${size}px`);
+    balloon.style.setProperty('--float-duration', `${duration}s`);
+    balloon.style.setProperty('--sway-duration', `${swayDuration}s`);
+    balloon.style.setProperty('--sway-dist', `${swayDist}px`);
+    balloon.style.setProperty('--rot-end', `${rotEnd}deg`);
+
+    balloon.innerHTML = `
+        <div class="balloon-inner">
+            <div class="balloon-frame">
+                <img class="balloon-img" src="${imgSrc}" alt="balloon memory" loading="lazy">
+                <div class="balloon-gloss"></div>
+            </div>
+            <div class="balloon-knot"></div>
+            <div class="balloon-string"></div>
+        </div>
+    `;
+
+    balloon.addEventListener('pointerdown', (e) => {
+        e.stopPropagation();
+        popBalloon(balloon, e.clientX || (balloon.getBoundingClientRect().left + size / 2),
+                           e.clientY || (balloon.getBoundingClientRect().top + size / 2));
+    });
+
+    container.appendChild(balloon);
+
+    setTimeout(() => {
+        if (balloon && balloon.parentElement) {
+            balloon.remove();
+        }
+    }, duration * 1000 + 1000);
+}
+
+function popBalloon(balloon, clickX, clickY) {
+    if (!balloon || !balloon.parentElement) return;
+
+    createAcceptBurst({
+        getBoundingClientRect: () => ({ left: clickX - 20, top: clickY - 20, width: 40, height: 40 })
+    });
+
+    onTriggerPulse();
+
+    balloon.style.transition = 'transform 0.15s ease-out, opacity 0.15s ease-out';
+    balloon.style.transform = 'scale(1.35)';
+    balloon.style.opacity = '0';
+    setTimeout(() => {
+        if (balloon && balloon.parentElement) balloon.remove();
+    }, 180);
+}
+
+function startHeartBalloons() {
+    if (balloonTimer) return;
+
+    spawnHeartBalloon();
+    setTimeout(spawnHeartBalloon, 1500);
+
+    function loopSpawn() {
+        spawnHeartBalloon();
+        const nextDelay = 3500 + Math.random() * 2500;
+        balloonTimer = setTimeout(loopSpawn, nextDelay);
+    }
+    balloonTimer = setTimeout(loopSpawn, 4000);
+}
+
 function restartAssembly() {
     assembleStartTime = clock.getElapsedTime();
 }
 
 function onTriggerPulse() {
+    if (isGateOpen) return;
     shockwaveTime = clock.getElapsedTime();
 }
 

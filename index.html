@@ -9,15 +9,41 @@
     <title>Heart Animation</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;600&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div id="webgl-container"></div>
     
-    <div class="ui-container">
-        <h1 class="title">Heart Animation</h1>
-        <p class="sub-hint">Move cursor to interact</p>
+    <!-- Floating Heart Photo Balloons Container -->
+    <div id="balloons-container" class="balloons-container"></div>
+
+    <!-- Gate Overlay Modal -->
+    <div id="gate-overlay" class="gate-overlay">
+        <div class="gate-backdrop"></div>
+        <div class="gate-card">
+            <div class="gate-icon-wrap">
+                <span class="gate-icon">💌</span>
+                <span class="gate-sparkle sparkle-1">✨</span>
+                <span class="gate-sparkle sparkle-2">💖</span>
+            </div>
+            <h2 class="gate-title">มีกำลังใจมาส่งคับบ ✨</h2>
+            <p class="gate-desc">มีของขวัญพิเศษรออยู่ข้างใน อยากให้เปิดดูจังเลยยย 💖</p>
+            
+            <div class="gate-actions" id="gate-actions">
+                <button id="btn-accept" class="btn-accept" type="button">
+                    <span>รับเลยยย 💖</span>
+                </button>
+                <button id="btn-reject" class="btn-reject" type="button">
+                    <span id="reject-text">ไม่รับ 😜</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="ui-container" id="ui-container">
+        <h1 class="title">Special For You 💖</h1>
+        <p class="sub-hint">Drag to rotate • Tap to feel beat</p>
     </div>
 
     <!-- Import maps polyfill & Three.js ES Modules -->
