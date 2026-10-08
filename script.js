@@ -185,7 +185,7 @@ function init() {
     animate();
 }
 
-// Balloon photos array
+// Balloon photos array (all 5 distinct memories)
 const BALLOON_IMAGES = [
     'images/card1.png',
     'images/card2.jpg',
@@ -196,12 +196,12 @@ const BALLOON_IMAGES = [
 
 const REJECT_TEASES = [
     'ไม่รับ 😜',
-    'เอ๊ะ กดไม่ทันหรอก 🏃‍♂️💨',
+    'เอ๊ะ กดไม่ทัน 🏃‍♂️💨',
     'แน่ะ จะไม่รับจริงหยอ 🥺',
     'ไม่ให้กดดด 😝',
     'ยอมรับเถอะน้าา 💕',
     'กดปุ่มรับดีกว่าาา 👉💖',
-    'หนีอีกรอบบบ 💨',
+    'หนีอีกแล้วว 💨',
     'อย่าน้าา รับเถอะ 🥺'
 ];
 
@@ -223,17 +223,29 @@ function initGateAndRunaway() {
             e.stopPropagation();
         }
 
-        const rect = btnReject.getBoundingClientRect();
-        const pad = 24;
-        const maxX = Math.max(pad + 10, window.innerWidth - rect.width - pad);
-        const maxY = Math.max(pad + 10, window.innerHeight - rect.height - pad);
+        // 1. Advance text first so measured size is accurate
+        rejectTeaseIndex = (rejectTeaseIndex + 1) % REJECT_TEASES.length;
+        if (rejectText) {
+            rejectText.textContent = REJECT_TEASES[rejectTeaseIndex];
+        }
 
-        let randX = Math.max(pad, Math.floor(Math.random() * maxX));
-        let randY = Math.max(pad, Math.floor(Math.random() * maxY));
+        btnReject.style.position = 'fixed';
+        btnReject.style.zIndex = '1000';
 
-        // Ensure button jumps away from touch/pointer position
-        let touchX = window.innerWidth / 2;
-        let touchY = window.innerHeight / 2;
+        // 2. Measure actual dimensions and screen bounds
+        const btnW = btnReject.offsetWidth || 135;
+        const btnH = btnReject.offsetHeight || 44;
+        const screenW = Math.min(window.innerWidth, document.documentElement.clientWidth);
+        const screenH = Math.min(window.innerHeight, document.documentElement.clientHeight);
+
+        const padX = 16;
+        const padY = 24;
+        const maxX = Math.max(padX, screenW - btnW - padX);
+        const maxY = Math.max(padY, screenH - btnH - padY);
+
+        // 3. Find pointer / touch location
+        let touchX = screenW / 2;
+        let touchY = screenH / 2;
         if (e) {
             if (e.clientX !== undefined) {
                 touchX = e.clientX;
@@ -244,24 +256,27 @@ function initGateAndRunaway() {
             }
         }
 
-        if (Math.abs(randX - touchX) < 100) {
-            randX = (randX + 160) % maxX;
-            if (randX < pad) randX = pad;
-        }
-        if (Math.abs(randY - touchY) < 80) {
-            randY = (randY + 160) % maxY;
-            if (randY < pad) randY = pad;
+        // 4. Calculate target coordinates far from finger (opposite half)
+        let targetX;
+        if (touchX < screenW / 2) {
+            targetX = (screenW * 0.5) + Math.random() * (maxX - (screenW * 0.5));
+        } else {
+            targetX = padX + Math.random() * Math.max(10, (screenW * 0.5) - btnW - padX);
         }
 
-        btnReject.style.position = 'fixed';
-        btnReject.style.left = `${randX}px`;
-        btnReject.style.top = `${randY}px`;
-        btnReject.style.zIndex = '1000';
-
-        rejectTeaseIndex = (rejectTeaseIndex + 1) % REJECT_TEASES.length;
-        if (rejectText) {
-            rejectText.textContent = REJECT_TEASES[rejectTeaseIndex];
+        let targetY;
+        if (touchY < screenH / 2) {
+            targetY = (screenH * 0.5) + Math.random() * (maxY - (screenH * 0.5));
+        } else {
+            targetY = padY + Math.random() * Math.max(10, (screenH * 0.5) - btnH - padY);
         }
+
+        // 5. Strict clamping - 100% guaranteed never outside screen
+        targetX = Math.max(padX, Math.min(maxX, targetX));
+        targetY = Math.max(padY, Math.min(maxY, targetY));
+
+        btnReject.style.left = `${Math.round(targetX)}px`;
+        btnReject.style.top = `${Math.round(targetY)}px`;
     }
 
     // Run away on hover, touch, pointer
@@ -270,7 +285,7 @@ function initGateAndRunaway() {
     btnReject.addEventListener('pointerdown', runawayButton);
 
     // Accept button logic
-    btnAccept.addEventListener('click', (e) => {
+    btnAccept.addEventListener('click', () => {
         isGateOpen = false;
         createAcceptBurst(btnAccept);
         gateOverlay.classList.add('hidden');
@@ -309,20 +324,49 @@ function createAcceptBurst(el) {
     }
 }
 
-function spawnHeartBalloon() {
+// Launch all 5 photos across the screen simultaneously without repeating!
+function launchAllBalloonsWave() {
+    const container = document.getElementById('balloons-container');
+    if (!container || isGateOpen) return;
+
+    // 5 distinct horizontal slots so all 5 photos are distributed across the width
+    const baseSlots = isMobile 
+        ? [6, 26, 48, 68, 88] 
+        : [8, 28, 48, 68, 88];
+
+    // Shuffle slot assignments so photos aren't always in identical columns
+    const shuffledSlots = [...baseSlots].sort(() => Math.random() - 0.5);
+
+    BALLOON_IMAGES.forEach((imgSrc, index) => {
+        const slotX = shuffledSlots[index];
+        const jitter = (Math.random() - 0.5) * 5;
+        const leftPercent = Math.max(4, Math.min(90, slotX + jitter));
+
+        // Slight natural stagger (0ms, 180ms, 360ms...)
+        const staggerDelay = index * 180;
+
+        setTimeout(() => {
+            if (isGateOpen) return;
+            spawnSingleHeartBalloon(imgSrc, leftPercent, index);
+        }, staggerDelay);
+    });
+}
+
+function spawnSingleHeartBalloon(imgSrc, leftPercent, index) {
     const container = document.getElementById('balloons-container');
     if (!container || isGateOpen) return;
 
     const balloon = document.createElement('div');
     balloon.className = 'heart-balloon';
 
-    const imgSrc = BALLOON_IMAGES[Math.floor(Math.random() * BALLOON_IMAGES.length)];
-    const leftPercent = 5 + Math.random() * 82;
-    const duration = 12 + Math.random() * 8;
-    const swayDuration = 2.6 + Math.random() * 2.0;
-    const swayDist = 15 + Math.random() * 20;
-    const rotEnd = (Math.random() - 0.5) * 30;
-    const size = isMobile ? (70 + Math.random() * 14) : (88 + Math.random() * 20);
+    // Brisk, lively float duration: 5.2s - 7.2s (no more slow crawling!)
+    const duration = isMobile 
+        ? (5.2 + Math.random() * 1.6) 
+        : (5.8 + Math.random() * 1.8);
+    const swayDuration = 2.0 + Math.random() * 1.2;
+    const swayDist = 12 + Math.random() * 14;
+    const rotEnd = (Math.random() - 0.5) * 26;
+    const size = isMobile ? (72 + (index % 2) * 8) : (88 + (index % 2) * 12);
 
     balloon.style.left = `${leftPercent}%`;
     balloon.style.setProperty('--balloon-size', `${size}px`);
@@ -350,11 +394,12 @@ function spawnHeartBalloon() {
 
     container.appendChild(balloon);
 
+    // Cleanup after float finishes
     setTimeout(() => {
         if (balloon && balloon.parentElement) {
             balloon.remove();
         }
-    }, duration * 1000 + 1000);
+    }, duration * 1000 + 400);
 }
 
 function popBalloon(balloon, clickX, clickY) {
@@ -375,17 +420,17 @@ function popBalloon(balloon, clickX, clickY) {
 }
 
 function startHeartBalloons() {
-    if (balloonTimer) return;
+    if (balloonTimer) clearInterval(balloonTimer);
 
-    spawnHeartBalloon();
-    setTimeout(spawnHeartBalloon, 1500);
+    // Launch all 5 photos immediately!
+    launchAllBalloonsWave();
 
-    function loopSpawn() {
-        spawnHeartBalloon();
-        const nextDelay = 3500 + Math.random() * 2500;
-        balloonTimer = setTimeout(loopSpawn, nextDelay);
-    }
-    balloonTimer = setTimeout(loopSpawn, 4000);
+    // Repeat fresh waves of all 5 photos every 5.8s
+    balloonTimer = setInterval(() => {
+        if (!isGateOpen) {
+            launchAllBalloonsWave();
+        }
+    }, 5800);
 }
 
 function restartAssembly() {
