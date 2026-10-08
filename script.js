@@ -3,11 +3,16 @@ import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 
+// Mobile detection
+const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+                 ('ontouchstart' in window) || 
+                 (window.innerWidth < 768);
+
 // Configuration
 const CONFIG = {
-    particleCount: 15000,
-    auraCount: 3500,
-    bloomStrength: 1.85,
+    particleCount: isMobile ? 12000 : 15000,
+    auraCount: isMobile ? 2600 : 3500,
+    bloomStrength: isMobile ? 1.55 : 1.85,
     bloomRadius: 0.65,
     bloomThreshold: 0.12,
     heartScale: 0.18,
@@ -26,6 +31,18 @@ let windowHalfX = window.innerWidth / 2;
 let windowHalfY = window.innerHeight / 2;
 let assembleStartTime = 0;
 let shockwaveTime = -10;
+
+// Interactive 3D Orbit & Touch Variables
+let isTouching = false;
+let touchStartX = 0;
+let touchStartY = 0;
+let lastTouchX = 0;
+let lastTouchY = 0;
+let touchDragDistance = 0;
+let orbitRotX = 0;
+let orbitRotY = 0;
+let orbitVelX = 0;
+let orbitVelY = 0;
 
 // Heart Equation generator
 // Parametric Heart 3D:
@@ -70,6 +87,20 @@ function createGlowTexture() {
     return texture;
 }
 
+// Dynamically compute camera distance so heart is never cropped on narrow mobile screens
+function getCameraBaseZ() {
+    const aspect = window.innerWidth / window.innerHeight;
+    if (aspect < 1.0) {
+        // Mobile portrait: scale distance so heart and aura fit with ample margins
+        return Math.max(16.5, 9.2 / aspect);
+    }
+    return 14.0;
+}
+
+function updateCameraPosition() {
+    camera.position.set(0, 0, getCameraBaseZ());
+}
+
 function init() {
     const container = document.getElementById('webgl-container');
 
@@ -81,10 +112,10 @@ function init() {
     camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 1000);
     updateCameraPosition();
 
-    // 3. Renderer
+    // 3. Renderer - optimized pixel ratio for mobile performance
     renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1.6 : 2.0));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.1;
     container.appendChild(renderer.domElement);
@@ -113,11 +144,30 @@ function init() {
     // 6. Build Floating Aura/Ambient Particles System (Both Inward and Outward flow)
     buildAuraParticles();
 
-    // 7. Event Listeners
+    // 7. Event Listeners (Pointer, Touch, and Gyroscope)
     window.addEventListener('resize', onWindowResize, false);
     window.addEventListener('pointermove', onPointerMove, false);
-    window.addEventListener('touchmove', onTouchMove, { passive: true });
     window.addEventListener('pointerdown', onTriggerPulse, false);
+
+    // Touch events for drag rotation and tap
+    window.addEventListener('touchstart', onTouchStart, { passive: true });
+    window.addEventListener('touchmove', onTouchMove, { passive: true });
+    window.addEventListener('touchend', onTouchEnd, { passive: true });
+
+    // Gyroscope subtle tilt for mobile
+    if (window.DeviceOrientationEvent && isMobile) {
+        window.addEventListener('deviceorientation', onDeviceOrientation, false);
+    }
+
+    // UI hint text dynamic update
+    const subHint = document.querySelector('.sub-hint');
+    if (subHint) {
+        if (isMobile) {
+            subHint.textContent = 'Drag to rotate • Tap to feel beat';
+        } else {
+            subHint.textContent = 'Move cursor to interact • Click to pulse';
+        }
+    }
 
     const titleEl = document.querySelector('.title');
     if (titleEl) {
@@ -132,17 +182,59 @@ function init() {
     animate();
 }
 
-function updateCameraPosition() {
-    const isMobile = window.innerWidth < 768;
-    camera.position.set(0, 0, isMobile ? 16.5 : 14.0);
-}
-
 function restartAssembly() {
     assembleStartTime = clock.getElapsedTime();
 }
 
 function onTriggerPulse() {
     shockwaveTime = clock.getElapsedTime();
+}
+
+function onTouchStart(e) {
+    if (e.touches.length > 0) {
+        isTouching = true;
+        touchDragDistance = 0;
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+        lastTouchX = touchStartX;
+        lastTouchY = touchStartY;
+    }
+}
+
+function onTouchMove(e) {
+    if (e.touches.length > 0) {
+        const clientX = e.touches[0].clientX;
+        const clientY = e.touches[0].clientY;
+        const deltaX = clientX - lastTouchX;
+        const deltaY = clientY - lastTouchY;
+        touchDragDistance += Math.hypot(deltaX, deltaY);
+
+        orbitVelY += deltaX * 0.0035;
+        orbitVelX += deltaY * 0.0035;
+
+        lastTouchX = clientX;
+        lastTouchY = clientY;
+
+        mouse.targetX = (clientX - windowHalfX) * 0.002;
+        mouse.targetY = (clientY - windowHalfY) * 0.002;
+    }
+}
+
+function onTouchEnd() {
+    isTouching = false;
+    // If it was a tap without significant dragging, trigger heartbeat shockwave
+    if (touchDragDistance < 10) {
+        onTriggerPulse();
+    }
+}
+
+function onDeviceOrientation(e) {
+    if (e.gamma !== null && e.beta !== null && !isTouching) {
+        const gx = Math.min(Math.max(e.gamma / 30, -1), 1);
+        const gy = Math.min(Math.max((e.beta - 45) / 30, -1), 1);
+        mouse.targetX = gx * 0.6;
+        mouse.targetY = gy * 0.6;
+    }
 }
 
 function buildHeartParticles() {
@@ -227,7 +319,7 @@ function buildHeartParticles() {
     heartGeometry.setAttribute('randomOffset', new THREE.BufferAttribute(randomOffsets, 3));
 
     heartMaterial = new THREE.PointsMaterial({
-        size: 0.18,
+        size: isMobile ? 0.22 : 0.17,
         vertexColors: true,
         map: createGlowTexture(),
         blending: THREE.AdditiveBlending,
@@ -290,12 +382,12 @@ function buildAuraParticles() {
     auraGeometry.setAttribute('mode', new THREE.BufferAttribute(modes, 1));
 
     auraMaterial = new THREE.PointsMaterial({
-        size: 0.12,
+        size: isMobile ? 0.15 : 0.12,
         vertexColors: true,
         map: createGlowTexture(),
         blending: THREE.AdditiveBlending,
         transparent: true,
-        opacity: 0.65,
+        opacity: 0.70,
         depthWrite: false,
         sizeAttenuation: true
     });
@@ -340,14 +432,9 @@ function onWindowResize() {
 }
 
 function onPointerMove(e) {
-    mouse.targetX = (e.clientX - windowHalfX) * 0.0018;
-    mouse.targetY = (e.clientY - windowHalfY) * 0.0018;
-}
-
-function onTouchMove(e) {
-    if (e.touches.length > 0) {
-        mouse.targetX = (e.touches[0].clientX - windowHalfX) * 0.0018;
-        mouse.targetY = (e.touches[0].clientY - windowHalfY) * 0.0018;
+    if (!isTouching) {
+        mouse.targetX = (e.clientX - windowHalfX) * 0.0018;
+        mouse.targetY = (e.clientY - windowHalfY) * 0.0018;
     }
 }
 
@@ -361,8 +448,15 @@ function animate() {
     mouse.x += (mouse.targetX - mouse.x) * 0.045;
     mouse.y += (mouse.targetY - mouse.y) * 0.045;
 
-    // Camera gentle 3D orbit and hover
-    const baseZ = window.innerWidth < 768 ? 16.5 : 14.0;
+    // Smooth touch orbit damping & momentum
+    orbitRotY += orbitVelY;
+    orbitRotX += orbitVelX;
+    orbitVelY *= 0.92;
+    orbitVelX *= 0.92;
+    orbitRotX = Math.max(-0.6, Math.min(0.6, orbitRotX));
+
+    // Dynamic responsive camera distance for mobile portrait & landscape
+    const baseZ = getCameraBaseZ();
     camera.position.x = Math.sin(currentTime * 0.25) * 0.8 + mouse.x * 4.5;
     camera.position.y = Math.cos(currentTime * 0.2) * 0.5 - mouse.y * 4.5;
     camera.position.z = baseZ + Math.sin(currentTime * 0.3) * 0.3;
@@ -384,7 +478,8 @@ function animate() {
 
     // Dynamic particle size pulse in sync with heartbeat
     if (heartMaterial) {
-        heartMaterial.size = 0.17 * beatScale;
+        const baseSize = isMobile ? 0.22 : 0.17;
+        heartMaterial.size = baseSize * beatScale;
     }
 
     // 4. Update Heart Particles
@@ -423,8 +518,8 @@ function animate() {
         }
         heartGeometry.attributes.position.needsUpdate = true;
 
-        heartParticles.rotation.y = Math.sin(currentTime * 0.4) * 0.12;
-        heartParticles.rotation.x = Math.cos(currentTime * 0.3) * 0.06;
+        heartParticles.rotation.y = Math.sin(currentTime * 0.4) * 0.12 + orbitRotY;
+        heartParticles.rotation.x = Math.cos(currentTime * 0.3) * 0.06 + orbitRotX;
     }
 
     // 5. Update Floating Aura Particles (Both Inward and Outward flow)

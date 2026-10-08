@@ -9,8 +9,13 @@
 body, html {
     width: 100%;
     height: 100%;
+    height: 100dvh;
+    min-height: -webkit-fill-available;
     overflow: hidden;
     background-color: #000000;
+    touch-action: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
     font-family: 'Outfit', 'Montserrat', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
@@ -20,17 +25,21 @@ body, html {
     left: 0;
     width: 100vw;
     height: 100vh;
+    height: 100dvh;
     z-index: 1;
+    touch-action: none;
 }
 
 .ui-container {
     position: fixed;
-    top: 2rem;
+    top: calc(1.8rem + env(safe-area-inset-top, 0px));
     left: 50%;
     transform: translateX(-50%);
     z-index: 10;
     pointer-events: none;
     text-align: center;
+    width: 90%;
+    max-width: 400px;
 }
 
 .title {
@@ -38,29 +47,35 @@ body, html {
     font-weight: 300;
     letter-spacing: 0.35em;
     text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.75);
-    text-shadow: 0 0 15px rgba(255, 75, 130, 0.4), 0 0 30px rgba(255, 20, 100, 0.2);
-    transition: opacity 0.5s ease;
+    color: rgba(255, 255, 255, 0.85);
+    text-shadow: 0 0 15px rgba(255, 75, 130, 0.45), 0 0 30px rgba(255, 20, 100, 0.25);
+    transition: opacity 0.5s ease, transform 0.2s ease;
+    display: inline-block;
+}
+
+.title:active {
+    transform: scale(0.96);
 }
 
 .sub-hint {
     margin-top: 0.6rem;
     font-size: 0.75rem;
     letter-spacing: 0.2em;
-    color: rgba(255, 180, 205, 0.4);
+    color: rgba(255, 180, 205, 0.5);
     font-weight: 300;
     transition: opacity 0.3s ease;
 }
 
 @media (max-width: 768px) {
     .title {
-        font-size: 1.1rem;
-        letter-spacing: 0.25em;
+        font-size: 1.15rem;
+        letter-spacing: 0.28em;
     }
     .sub-hint {
-        font-size: 0.65rem;
+        font-size: 0.68rem;
+        letter-spacing: 0.15em;
     }
     .ui-container {
-        top: 1.5rem;
+        top: calc(1.4rem + env(safe-area-inset-top, 0px));
     }
 }
