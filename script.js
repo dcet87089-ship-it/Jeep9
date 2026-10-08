@@ -24,6 +24,8 @@ let clock = new THREE.Clock();
 let mouse = { x: 0, y: 0, targetX: 0, targetY: 0 };
 let windowHalfX = window.innerWidth / 2;
 let windowHalfY = window.innerHeight / 2;
+let assembleStartTime = 0;
+let shockwaveTime = -10;
 
 // Heart Equation generator
 // Parametric Heart 3D:
@@ -35,12 +37,11 @@ function getHeartPosition(t, u, v) {
     const yBase = 13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t);
     
     // Scale inward to fill volume (radial factor r: 0 -> 1)
-    // using square root for even spatial density
     const r = Math.sqrt(u); 
     const x = xBase * r * CONFIG.heartScale;
     const y = yBase * r * CONFIG.heartScale;
     
-    // Calculate realistic 3D thickness: thickness tapers off at top/bottom and edges
+    // Calculate realistic 3D thickness
     const maxThickness = (1.0 - Math.pow(r, 1.8)) * 8.5 + 1.2;
     const z = (v - 0.5) * 2 * maxThickness * CONFIG.heartScale * (0.8 + 0.4 * Math.sin(t * 2));
     
@@ -78,7 +79,7 @@ function init() {
 
     // 2. Camera
     camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.set(0, 0, 14);
+    updateCameraPosition();
 
     // 3. Renderer
     renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
@@ -89,31 +90,59 @@ function init() {
     container.appendChild(renderer.domElement);
 
     // 4. Post-processing (Unreal Bloom)
-    const renderScene = new RenderPass(scene, camera);
-    const bloomPass = new UnrealBloomPass(
-        new THREE.Vector2(window.innerWidth, window.innerHeight),
-        CONFIG.bloomStrength,
-        CONFIG.bloomRadius,
-        CONFIG.bloomThreshold
-    );
+    try {
+        const renderScene = new RenderPass(scene, camera);
+        const bloomPass = new UnrealBloomPass(
+            new THREE.Vector2(window.innerWidth, window.innerHeight),
+            CONFIG.bloomStrength,
+            CONFIG.bloomRadius,
+            CONFIG.bloomThreshold
+        );
 
-    composer = new EffectComposer(renderer);
-    composer.addPass(renderScene);
-    composer.addPass(bloomPass);
+        composer = new EffectComposer(renderer);
+        composer.addPass(renderScene);
+        composer.addPass(bloomPass);
+    } catch (e) {
+        console.warn('Post-processing composer disabled on this device, using fallback renderer', e);
+        composer = null;
+    }
 
     // 5. Build Heart Particles System
     buildHeartParticles();
 
-    // 6. Build Floating Aura/Ambient Particles System
+    // 6. Build Floating Aura/Ambient Particles System (Both Inward and Outward flow)
     buildAuraParticles();
 
     // 7. Event Listeners
     window.addEventListener('resize', onWindowResize, false);
     window.addEventListener('pointermove', onPointerMove, false);
     window.addEventListener('touchmove', onTouchMove, { passive: true });
+    window.addEventListener('pointerdown', onTriggerPulse, false);
+
+    const titleEl = document.querySelector('.title');
+    if (titleEl) {
+        titleEl.style.cursor = 'pointer';
+        titleEl.style.pointerEvents = 'auto';
+        titleEl.addEventListener('click', restartAssembly);
+    }
 
     // Animate
+    clock.start();
+    assembleStartTime = clock.getElapsedTime();
     animate();
+}
+
+function updateCameraPosition() {
+    const isMobile = window.innerWidth < 768;
+    camera.position.set(0, 0, isMobile ? 16.5 : 14.0);
+}
+
+function restartAssembly() {
+    assembleStartTime = clock.getElapsedTime();
+}
+
+function onTriggerPulse() {
+    shockwaveTime = clock.getElapsedTime();
 }
 
 function buildHeartParticles() {
@@ -127,7 +156,7 @@ function buildHeartParticles() {
     const sizes = new Float32Array(count);
     const randomOffsets = new Float32Array(count * 3);
 
-    // Palette: Vibrant neon pinks, deep ruby, passionate magentas, and pure white highlights
+    // Palette: Vibrant neon pinks, deep ruby, passionate magentas, and sparkle white highlights
     const colorPalette = [
         new THREE.Color(0xff1493), // DeepPink
         new THREE.Color(0xff2d75), // Neon Red-Pink
@@ -164,12 +193,11 @@ function buildHeartParticles() {
         originPositions[i3 + 1] = oy;
         originPositions[i3 + 2] = oz;
 
-        // Current start at origin positions
         currentPositions[i3] = ox;
         currentPositions[i3 + 1] = oy;
         currentPositions[i3 + 2] = oz;
 
-        // Assign colors: 8% sparkling white, rest beautiful pink/red blends
+        // Assign colors: ~8% sparkling white, rest beautiful pink/red blends
         const isHighlight = Math.random() < 0.08;
         let c;
         if (isHighlight) {
@@ -177,7 +205,6 @@ function buildHeartParticles() {
         } else {
             const pick = Math.floor(Math.random() * colorPalette.length);
             c = colorPalette[pick].clone();
-            // Subtle brightness variations
             c.offsetHSL((Math.random() - 0.5) * 0.05, 0, (Math.random() - 0.5) * 0.1);
         }
 
@@ -185,10 +212,8 @@ function buildHeartParticles() {
         colors[i3 + 1] = c.g;
         colors[i3 + 2] = c.b;
 
-        // Size variations
         sizes[i] = isHighlight ? Math.random() * 0.22 + 0.18 : Math.random() * 0.16 + 0.08;
 
-        // Random jitter offsets for organic life movement
         randomOffsets[i3] = (Math.random() - 0.5) * 2;
         randomOffsets[i3 + 1] = (Math.random() - 0.5) * 2;
         randomOffsets[i3 + 2] = (Math.random() - 0.5) * 2;
@@ -201,7 +226,6 @@ function buildHeartParticles() {
     heartGeometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
     heartGeometry.setAttribute('randomOffset', new THREE.BufferAttribute(randomOffsets, 3));
 
-    // Particle Material
     heartMaterial = new THREE.PointsMaterial({
         size: 0.18,
         vertexColors: true,
@@ -225,15 +249,19 @@ function buildAuraParticles() {
     const colors = new Float32Array(count * 3);
     const speeds = new Float32Array(count * 3);
     const life = new Float32Array(count);
+    const modes = new Float32Array(count); // 0 = drift outward, 1 = drift inward
 
     const auraColor = new THREE.Color(0xff2d75);
 
     for (let i = 0; i < count; i++) {
         const i3 = i * 3;
 
-        // Start near heart edge and float outward
+        // 60% drift outward, 40% drift inward towards heart
+        const isDriftingIn = Math.random() < 0.4;
+        modes[i] = isDriftingIn ? 1.0 : 0.0;
+
         const t = Math.random() * Math.PI * 2;
-        const u = 0.85 + Math.random() * 0.35;
+        const u = isDriftingIn ? (1.3 + Math.random() * 1.2) : (0.85 + Math.random() * 0.35);
         const v = Math.random();
         const base = getHeartPosition(t, u, v);
 
@@ -241,13 +269,14 @@ function buildAuraParticles() {
         positions[i3 + 1] = base.y * 1.05;
         positions[i3 + 2] = base.z * 1.05;
 
-        // Float direction (drift outwards with subtle upward draft)
         const angle = Math.atan2(base.y, base.x);
-        speeds[i3] = Math.cos(angle) * (0.2 + Math.random() * 0.5) + (Math.random() - 0.5) * 0.2;
-        speeds[i3 + 1] = Math.sin(angle) * (0.2 + Math.random() * 0.5) + 0.3 + Math.random() * 0.4;
-        speeds[i3 + 2] = (Math.random() - 0.5) * 0.8;
+        const dir = isDriftingIn ? -1.0 : 1.0;
 
-        life[i] = Math.random(); // 0 to 1 life progression
+        speeds[i3] = dir * (Math.cos(angle) * (0.2 + Math.random() * 0.4) + (Math.random() - 0.5) * 0.2);
+        speeds[i3 + 1] = dir * (Math.sin(angle) * (0.2 + Math.random() * 0.4) + (Math.random() - 0.5) * 0.2);
+        speeds[i3 + 2] = (Math.random() - 0.5) * 0.7;
+
+        life[i] = Math.random();
 
         colors[i3] = auraColor.r;
         colors[i3 + 1] = auraColor.g * (0.7 + Math.random() * 0.3);
@@ -258,6 +287,7 @@ function buildAuraParticles() {
     auraGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
     auraGeometry.setAttribute('speed', new THREE.BufferAttribute(speeds, 3));
     auraGeometry.setAttribute('life', new THREE.BufferAttribute(life, 1));
+    auraGeometry.setAttribute('mode', new THREE.BufferAttribute(modes, 1));
 
     auraMaterial = new THREE.PointsMaterial({
         size: 0.12,
@@ -281,18 +311,17 @@ function easeOutCubic(x) {
 
 // Heartbeat formula simulating lub-dub physiological pulse
 function getHeartbeatScale(time) {
-    // 68-72 BPM rhythm: period roughly 1.1s
-    const period = 1.1;
-    const t = (time % period) / period; // normalized 0 -> 1
+    const period = 1.15;
+    const t = (time % period) / period;
 
     let beat = 0;
-    // Primary Beat (Lub) - punchy rise and fall
-    if (t < 0.18) {
-        beat = Math.sin((t / 0.18) * Math.PI) * 0.11;
+    // Primary Beat (Lub) - punchy expansion 1.05 - 1.12x
+    if (t < 0.16) {
+        beat = Math.sin((t / 0.16) * Math.PI) * 0.10;
     } 
     // Secondary Beat (Dub) - softer echo
-    else if (t >= 0.22 && t < 0.42) {
-        beat = Math.sin(((t - 0.22) / 0.20) * Math.PI) * 0.055;
+    else if (t >= 0.20 && t < 0.38) {
+        beat = Math.sin(((t - 0.20) / 0.18) * Math.PI) * 0.05;
     }
 
     return 1.0 + beat;
@@ -303,8 +332,11 @@ function onWindowResize() {
     windowHalfY = window.innerHeight / 2;
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
+    updateCameraPosition();
     renderer.setSize(window.innerWidth, window.innerHeight);
-    composer.setSize(window.innerWidth, window.innerHeight);
+    if (composer) {
+        composer.setSize(window.innerWidth, window.innerHeight);
+    }
 }
 
 function onPointerMove(e) {
@@ -322,25 +354,38 @@ function onTouchMove(e) {
 function animate() {
     requestAnimationFrame(animate);
 
-    const elapsedTime = clock.getElapsedTime();
-    const delta = clock.getDelta();
+    const currentTime = clock.getElapsedTime();
+    const elapsedTimeSinceAssemble = currentTime - assembleStartTime;
 
     // 1. Mouse smooth parallax damping
     mouse.x += (mouse.targetX - mouse.x) * 0.045;
     mouse.y += (mouse.targetY - mouse.y) * 0.045;
 
     // Camera gentle 3D orbit and hover
-    camera.position.x = Math.sin(elapsedTime * 0.25) * 0.8 + mouse.x * 4.5;
-    camera.position.y = Math.cos(elapsedTime * 0.2) * 0.5 - mouse.y * 4.5;
-    camera.position.z = 14 + Math.sin(elapsedTime * 0.3) * 0.3;
+    const baseZ = window.innerWidth < 768 ? 16.5 : 14.0;
+    camera.position.x = Math.sin(currentTime * 0.25) * 0.8 + mouse.x * 4.5;
+    camera.position.y = Math.cos(currentTime * 0.2) * 0.5 - mouse.y * 4.5;
+    camera.position.z = baseZ + Math.sin(currentTime * 0.3) * 0.3;
     camera.lookAt(0, 0, 0);
 
     // 2. Assembly progress (0 -> 1 over CONFIG.assembleDuration)
-    const rawProgress = Math.min(elapsedTime / CONFIG.assembleDuration, 1.0);
+    const rawProgress = Math.min(elapsedTimeSinceAssemble / CONFIG.assembleDuration, 1.0);
     const progress = easeOutCubic(rawProgress);
 
     // 3. Heartbeat scale factor
-    const beatScale = rawProgress >= 0.8 ? getHeartbeatScale(elapsedTime) : 1.0;
+    let beatScale = rawProgress >= 0.8 ? getHeartbeatScale(currentTime) : 1.0;
+
+    // Optional touch shockwave effect
+    const timeSinceShockwave = currentTime - shockwaveTime;
+    if (timeSinceShockwave >= 0 && timeSinceShockwave < 0.6) {
+        const shockProgress = timeSinceShockwave / 0.6;
+        beatScale += Math.sin(shockProgress * Math.PI) * 0.22;
+    }
+
+    // Dynamic particle size pulse in sync with heartbeat
+    if (heartMaterial) {
+        heartMaterial.size = 0.17 * beatScale;
+    }
 
     // 4. Update Heart Particles
     if (heartGeometry) {
@@ -353,23 +398,19 @@ function animate() {
         for (let i = 0; i < count; i++) {
             const i3 = i * 3;
 
-            // Target coordinate modulated by heartbeat scale
             const tx = targets[i3] * beatScale;
             const ty = targets[i3 + 1] * beatScale;
             const tz = targets[i3 + 2] * beatScale;
 
-            // Organic breathing / slight shimmer wiggle
-            const shimmer = 0.04 * Math.sin(elapsedTime * 3.5 + i);
+            const shimmer = 0.04 * Math.sin(currentTime * 3.5 + i);
             const ox = origins[i3];
             const oy = origins[i3 + 1];
             const oz = origins[i3 + 2];
 
-            // Interpolation from origin to target
             const curX = ox + (tx - ox) * progress;
             const curY = oy + (ty - oy) * progress;
             const curZ = oz + (tz - oz) * progress;
 
-            // Add alive micro-movement once assembled
             if (rawProgress >= 0.75) {
                 positions[i3] = curX + offsets[i3] * shimmer;
                 positions[i3 + 1] = curY + offsets[i3 + 1] * shimmer;
@@ -382,35 +423,33 @@ function animate() {
         }
         heartGeometry.attributes.position.needsUpdate = true;
 
-        // Subtle slow rotation of the heart mesh
-        heartParticles.rotation.y = Math.sin(elapsedTime * 0.4) * 0.12;
-        heartParticles.rotation.x = Math.cos(elapsedTime * 0.3) * 0.06;
+        heartParticles.rotation.y = Math.sin(currentTime * 0.4) * 0.12;
+        heartParticles.rotation.x = Math.cos(currentTime * 0.3) * 0.06;
     }
 
-    // 5. Update Floating Aura Particles
+    // 5. Update Floating Aura Particles (Both Inward and Outward flow)
     if (auraGeometry) {
         const positions = auraGeometry.attributes.position.array;
         const speeds = auraGeometry.attributes.speed.array;
         const life = auraGeometry.attributes.life.array;
+        const modes = auraGeometry.attributes.mode.array;
         const count = CONFIG.auraCount;
 
         for (let i = 0; i < count; i++) {
             const i3 = i * 3;
 
-            // Life cycle
             life[i] += 0.007;
             if (life[i] > 1.0) {
                 life[i] = 0.0;
-                // Respawn on heart surface
+                const isDriftingIn = modes[i] === 1.0;
                 const t = Math.random() * Math.PI * 2;
-                const u = 0.82 + Math.random() * 0.3;
+                const u = isDriftingIn ? (1.3 + Math.random() * 1.2) : (0.82 + Math.random() * 0.3);
                 const v = Math.random();
                 const base = getHeartPosition(t, u, v);
                 positions[i3] = base.x * beatScale;
                 positions[i3 + 1] = base.y * beatScale;
                 positions[i3 + 2] = base.z * beatScale;
             } else {
-                // Float outwards
                 positions[i3] += speeds[i3] * 0.025;
                 positions[i3 + 1] += speeds[i3 + 1] * 0.028;
                 positions[i3 + 2] += speeds[i3 + 2] * 0.025;
@@ -418,13 +457,22 @@ function animate() {
         }
         auraGeometry.attributes.position.needsUpdate = true;
 
-        // Match aura rotation
-        auraParticles.rotation.y = heartParticles.rotation.y;
-        auraParticles.rotation.x = heartParticles.rotation.x;
+        if (heartParticles) {
+            auraParticles.rotation.y = heartParticles.rotation.y;
+            auraParticles.rotation.x = heartParticles.rotation.x;
+        }
     }
 
-    // 6. Render with Bloom Composer
-    composer.render();
+    // 6. Render with Composer or Fallback Renderer
+    if (composer) {
+        try {
+            composer.render();
+        } catch (err) {
+            renderer.render(scene, camera);
+        }
+    } else {
+        renderer.render(scene, camera);
+    }
 }
 
 // Start
