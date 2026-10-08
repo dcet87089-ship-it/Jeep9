@@ -343,49 +343,43 @@ function createAcceptBurst(el) {
     }
 }
 
-// Release 1 - 2 graceful balloons at a time (never crowded or chaotic)
-function spawnGracefulBalloons() {
+// Release strictly ONE balloon at a time in peaceful rotation
+function spawnSingleBalloon() {
     const container = document.getElementById('balloons-container');
     if (!container || isGateOpen) return;
 
-    // Release 1 or 2 balloons at a time
-    const count = Math.random() < 0.65 ? 1 : 2;
+    const imgSrc = getNextPhoto();
 
+    // Alternate lanes: Left side (10-28%), Right side (72-90%), Center-offset (38-62%)
+    // Keep mostly around the sides so the center 3D heart is clearly visible
     const zones = [
-        { min: 8, max: 30 },
-        { min: 38, max: 62 },
-        { min: 70, max: 90 }
+        { min: 10, max: 26 },
+        { min: 74, max: 90 },
+        { min: 28, max: 42 },
+        { min: 58, max: 72 }
     ];
+    lastZoneIndex = (lastZoneIndex + 1) % zones.length;
+    const zone = zones[lastZoneIndex];
+    const leftPercent = zone.min + Math.random() * (zone.max - zone.min);
 
-    for (let i = 0; i < count; i++) {
-        setTimeout(() => {
-            if (isGateOpen) return;
-            const imgSrc = getNextPhoto();
-
-            lastZoneIndex = (lastZoneIndex + 1 + Math.floor(Math.random() * 2)) % zones.length;
-            const zone = zones[lastZoneIndex];
-            const leftPercent = zone.min + Math.random() * (zone.max - zone.min);
-
-            spawnSingleHeartBalloon(imgSrc, leftPercent, i);
-        }, i * 350);
-    }
+    spawnSingleHeartBalloon(imgSrc, leftPercent);
 }
 
-function spawnSingleHeartBalloon(imgSrc, leftPercent, index) {
+function spawnSingleHeartBalloon(imgSrc, leftPercent) {
     const container = document.getElementById('balloons-container');
     if (!container || isGateOpen) return;
 
     const balloon = document.createElement('div');
     balloon.className = 'heart-balloon';
 
-    // Lively float speed: 5.4s - 7.0s
+    // Lively, smooth float speed: 5.6s - 7.0s
     const duration = isMobile 
-        ? (5.4 + Math.random() * 1.5) 
-        : (5.8 + Math.random() * 1.6);
-    const swayDuration = 2.0 + Math.random() * 1.0;
-    const swayDist = 12 + Math.random() * 14;
-    const rotEnd = (Math.random() - 0.5) * 24;
-    const size = isMobile ? (72 + (index % 2) * 8) : (88 + (index % 2) * 12);
+        ? (5.6 + Math.random() * 1.4) 
+        : (6.0 + Math.random() * 1.5);
+    const swayDuration = 2.2 + Math.random() * 1.0;
+    const swayDist = 12 + Math.random() * 12;
+    const rotEnd = (Math.random() - 0.5) * 22;
+    const size = isMobile ? (74 + Math.random() * 8) : (90 + Math.random() * 10);
 
     balloon.style.left = `${leftPercent}%`;
     balloon.style.setProperty('--balloon-size', `${size}px`);
@@ -440,18 +434,18 @@ function popBalloon(balloon, clickX, clickY) {
 function startHeartBalloons() {
     if (balloonTimer) clearTimeout(balloonTimer);
 
-    // Initial release: 2 balloons to begin gracefully
-    spawnGracefulBalloons();
+    // Initial release: exactly ONE balloon to start
+    spawnSingleBalloon();
 
-    // Release 1-2 balloons every 2.4 - 3.2 seconds
+    // Release strictly ONE balloon every 3.0 - 3.8 seconds
     function loop() {
         if (!isGateOpen) {
-            spawnGracefulBalloons();
+            spawnSingleBalloon();
         }
-        const delay = 2400 + Math.random() * 800;
+        const delay = 3000 + Math.random() * 800;
         balloonTimer = setTimeout(loop, delay);
     }
-    balloonTimer = setTimeout(loop, 2200);
+    balloonTimer = setTimeout(loop, 3000);
 }
 
 function restartAssembly() {
